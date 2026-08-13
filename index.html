@@ -47,8 +47,15 @@
     --accent-deep:#6B4FB0;
     --hex-line:#D3C2F5;
   }
+  body.theme-lv6{
+    --tile:#E4D5F0;
+    --tile-deep:#6B4C7A;
+    --accent:#6B4C7A;
+    --accent-deep:#4A3355;
+    --hex-line:#C9AFDA;
+  }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  html,body{margin:0; padding:0;}
+  html,body{margin:0; padding:0; overflow-x:hidden;}
   body{
     background:
       radial-gradient(circle at 12% 8%, #FFE9F1 0%, transparent 42%),
@@ -62,7 +69,7 @@
     padding:20px 12px 40px;
     transition:background .3s ease;
   }
-  .wrap{ width:100%; max-width:760px; }
+  .wrap{ width:100%; max-width:760px; min-width:0; }
 
   h1{
     font-family:'Baloo 2', sans-serif;
@@ -191,11 +198,15 @@
     display:flex;
     justify-content:center;
     overflow-x:auto;
+    width:100%;
+    min-width:0;
+    max-width:100%;
   }
   .board-inner{
     display:flex;
     align-items:flex-start;
     gap:6px;
+    min-width:0;
   }
   .row-hints{
     display:flex;
@@ -358,6 +369,7 @@
     <button class="diff-btn" data-level="lv3">보통 🌻</button>
     <button class="diff-btn" data-level="lv4">고급 🌹</button>
     <button class="diff-btn" data-level="lv5">매우어려움 🪻</button>
+    <button class="diff-btn" data-level="lv6">지옥 🏵️</button>
   </div>
 
   <div class="option-row" id="optionRow"></div>
@@ -389,9 +401,10 @@ const LEVELS = {
   lv2: { rows:9,  cols:10, mines:15, flower:'🌷', theme:'theme-lv2', hintMode:'none',     label:'초중급' },
   lv3: { rows:10, cols:12, mines:20, flower:'🌻', theme:'theme-lv3', hintMode:'optional', label:'보통' },
   lv4: { rows:11, cols:13, mines:26, flower:'🌹', theme:'theme-lv4', hintMode:'always',   label:'고급' },
-  lv5: { rows:13, cols:15, mines:38, flower:'🪻', theme:'theme-lv5', hintMode:'always',   label:'매우어려움' }
+  lv5: { rows:13, cols:15, mines:38,  flower:'🪻', theme:'theme-lv5', hintMode:'always', label:'매우어려움' },
+  lv6: { rows:30, cols:30, mines:190, flower:'🏵️', theme:'theme-lv6', hintMode:'always', label:'지옥' }
 };
-const LEVEL_ORDER = ['lv1','lv2','lv3','lv4','lv5'];
+const LEVEL_ORDER = ['lv1','lv2','lv3','lv4','lv5','lv6'];
 const WILTED = '🥀';
 let SIZE = 30;                 // hex circumradius (recalculated per screen size)
 let HEX_W = Math.round(SIZE*Math.sqrt(3));
