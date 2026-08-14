@@ -568,6 +568,8 @@
   <div class="garden-panel" id="rankingPanel"></div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 <script>
 const LEVELS = {
   lv1: { rows:14, cols:16, mines:45,  flower:'🌹', theme:'theme-lv1', hintMode:'optional', label:'하드' },
@@ -978,12 +980,12 @@ function saveLocalRecord(id, rec){
 // cross-device family ranking. Until then every function below is a
 // harmless no-op and everything runs on localStorage alone.
 const FIREBASE_CONFIG = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: ""
+  apiKey: "AIzaSyBsNv2jOafEwR9JRVglKgxFvYkE-e6WtzI",
+  authDomain: "hexagarden.firebaseapp.com",
+  projectId: "hexagarden",
+  storageBucket: "hexagarden.firebasestorage.app",
+  messagingSenderId: "515436589016",
+  appId: "1:515436589016:web:fe41eb41a994ab5cac4cad"
 };
 let db = null;
 if(FIREBASE_CONFIG.apiKey && window.firebase){
