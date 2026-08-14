@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>헥사가든</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FFF6ED;
+    --card:#FFFDF9;
+    --ink:#5B4A46;
+    --ink-soft:#9C8A85;
+    --line:#F0DCE4;
+    --tile:#F3D3DC;
+    --tile-deep:#D98BA0;
+    --accent:#D9678A;
+    --accent-deep:#B23A56;
+    --hex-line:#EFC2D2;
+    --flower-bg:none;
+    --flower-bg-faint:none;
+  }
+  body.theme-lv2{
+    --tile:#E8DFFB;
+    --tile-deep:#B79EF0;
+    --accent:#8E6BD8;
+    --accent-deep:#6B4FB0;
+    --hex-line:#D3C2F5;
+  }
+  body.theme-lv3{
+    --tile:#E4D5F0;
+    --tile-deep:#6B4C7A;
+    --accent:#6B4C7A;
+    --accent-deep:#4A3355;
+    --hex-line:#C9AFDA;
+  }
+  body.theme-lv4{
+    --tile:#FBD9DE;
+    --tile-deep:#C23B4E;
+    --accent:#C23B4E;
+    --accent-deep:#8E1F30;
+    --hex-line:#F0AEB9;
+  }
+  body.theme-lv5{
+    --tile:#FBEFC9;
+    --tile-deep:#C9A227;
+    --accent:#C9A227;
+    --accent-deep:#96751A;
+    --hex-line:#EAD98C;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0; overflow-x:hidden;}
+  body{
+    background:
+      radial-gradient(circle at 12% 8%, #FFE9F1 0%, transparent 42%),
+      radial-gradient(circle at 88% 92%, #FFF3D6 0%, transparent 42%),
+      var(--cream);
+    font-family:'Nunito', sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:20px 12px 40px;
+    transition:background .3s ease;
+  }
+  .wrap{ width:100%; max-width:760px; min-width:0; }
+
+  h1{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:25px;
+    text-align:center;
+    margin:4px 0 2px;
+    letter-spacing:-0.3px;
+  }
+  .subtitle{
+    text-align:center;
+    font-size:12.5px;
+    color:var(--ink-soft);
+    margin-bottom:14px;
+    font-weight:600;
+  }
+
+  .pot-zone{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    margin-bottom:8px;
+    font-size:40px;
+    height:48px;
+  }
+  .pot{ transition:transform .2s ease; }
+  .pot.win{ animation:winPop .5s ease; }
+  @keyframes winPop{
+    0%{ transform:scale(1) rotate(0);}
+    40%{ transform:scale(1.3) rotate(-8deg);}
+    70%{ transform:scale(1.1) rotate(6deg);}
+    100%{ transform:scale(1) rotate(0);}
+  }
+
+  .stats{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:var(--card);
+    border:2px solid var(--line);
+    border-radius:16px;
+    padding:10px 14px;
+    margin-bottom:12px;
+    font-family:'Baloo 2', sans-serif;
+  }
+  .stat{ text-align:center; min-width:64px; }
+  .stat .label{ font-size:10px; color:var(--ink-soft); font-weight:600; font-family:'Nunito',sans-serif; }
+  .stat .value{ font-size:20px; font-weight:700; }
+  .reset-btn{
+    width:46px; height:46px;
+    border-radius:50%;
+    border:2px solid var(--ink);
+    background:var(--accent);
+    color:#fff;
+    font-size:20px;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    box-shadow:0 3px 0 var(--accent-deep);
+    transition: transform .08s ease, box-shadow .08s ease;
+  }
+  .reset-btn:active{ transform:translateY(3px); box-shadow:0 0 0 var(--accent-deep); }
+
+  .diff-row{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px; }
+  .diff-btn{
+    flex:1 1 30%;
+    min-width:90px;
+    padding:9px 4px;
+    border-radius:12px;
+    border:2px solid var(--line);
+    background:var(--card);
+    font-family:'Baloo 2', sans-serif;
+    font-weight:600;
+    font-size:13px;
+    color:var(--ink-soft);
+    cursor:pointer;
+  }
+  .diff-btn.active{
+    background:var(--tile);
+    border-color:var(--tile-deep);
+    color:var(--ink);
+    box-shadow:0 3px 0 var(--tile-deep);
+    transform:translateY(-1px);
+  }
+
+  .option-row{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:8px;
+    margin-bottom:10px;
+    font-size:12.5px;
+    font-weight:700;
+    color:var(--ink-soft);
+    min-height:20px;
+  }
+  .option-row input{ accent-color:var(--accent); width:16px; height:16px; }
+  .option-row.locked{ color:var(--accent-deep); }
+
+  .mode-row{ display:flex; justify-content:center; margin-bottom:12px; }
+  .mode-toggle{
+    display:flex;
+    background:var(--card);
+    border:2px solid var(--line);
+    border-radius:14px;
+    padding:4px;
+    gap:4px;
+  }
+  .mode-btn{
+    padding:8px 20px;
+    border-radius:10px;
+    border:none;
+    background:transparent;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:13px;
+    color:var(--ink-soft);
+    cursor:pointer;
+  }
+  .mode-btn.active{ background:var(--tile); color:var(--ink); }
+
+  .campaign-timer{
+    display:none;
+    text-align:center;
+    background:var(--card);
+    border:2px solid var(--accent);
+    border-radius:16px;
+    padding:10px 14px;
+    margin-bottom:12px;
+  }
+  .campaign-timer.show{ display:block; }
+  .campaign-timer .ct-time{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:34px;
+    color:var(--accent-deep);
+    letter-spacing:1px;
+  }
+  .campaign-timer.urgent .ct-time{
+    color:#D92B2B;
+    animation:urgentPulse 1s ease-in-out infinite;
+  }
+  @keyframes urgentPulse{
+    0%,100%{ opacity:1; } 50%{ opacity:0.4; }
+  }
+  .campaign-timer .ct-level{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:13px;
+    color:var(--ink-soft);
+    margin-top:2px;
+  }
+  .campaign-timer .ct-cancel{
+    margin-top:6px;
+    font-size:11.5px;
+    font-weight:700;
+    color:var(--ink-soft);
+    text-decoration:underline;
+    cursor:pointer;
+    background:none;
+    border:none;
+  }
+  .campaign-btn{
+    display:block;
+    width:100%;
+    margin-bottom:12px;
+    padding:11px 10px;
+    border-radius:14px;
+    border:none;
+    background:linear-gradient(135deg, var(--accent), var(--accent-deep));
+    color:#fff;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:14px;
+    cursor:pointer;
+  }
+  .campaign-btn:active{ filter:brightness(0.95); }
+  .campaign-btn:disabled{ opacity:0.5; }
+
+  .board-frame{
+    background:var(--card);
+    border:2px solid var(--line);
+    border-radius:18px;
+    padding:14px 10px;
+    display:flex;
+    justify-content:center;
+    overflow-x:auto;
+    width:100%;
+    min-width:0;
+    max-width:100%;
+  }
+  .board-inner{
+    display:flex;
+    align-items:flex-start;
+    gap:6px;
+    min-width:0;
+  }
+  .row-hints{
+    display:flex;
+    flex-direction:column;
+    gap:0;
+  }
+  .row-hint{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:12px;
+    color:var(--accent-deep);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:20px;
+  }
+  .board{
+    position:relative;
+  }
+  .cell{
+    position:absolute;
+    background:var(--hex-line);
+    border:none;
+    padding:0;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    cursor:pointer;
+    user-select:none;
+    -webkit-user-select:none;
+    -webkit-user-drag:none;
+    -webkit-touch-callout:none;
+    touch-action:manipulation;
+    transition: filter .1s ease;
+  }
+  .cell:active{ filter:brightness(0.96); }
+  .cell-fill{
+    position:absolute;
+    inset:1.5px;
+    background-color:var(--tile);
+    background-image:var(--flower-bg);
+    background-size:cover;
+    background-position:center;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:18px;
+    color:var(--ink);
+    pointer-events:none;
+  }
+  .cell.revealed .cell-fill{ background-color:var(--card); background-image:var(--flower-bg-faint); }
+  .cell.revealed{ cursor:default; }
+  .cell.revealed:active{ filter:none; }
+  .cell.mine.exploded .cell-fill{ background:#FF8080; }
+  .cell.flagged .cell-fill{ background:var(--accent); color:#fff; }
+  .n1{ color:#6FCDAE; }
+  .n2{ color:#B79EF0; }
+  .n3{ color:var(--accent); }
+  .n4{ color:#8E6BD8; }
+  .n5{ color:#C2622A; }
+  .n6{ color:#3E9B8A; }
+
+  .msg{
+    text-align:center;
+    margin-top:14px;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:14.5px;
+    min-height:40px;
+  }
+  .best{
+    text-align:center;
+    font-size:12px;
+    color:var(--ink-soft);
+    margin-top:2px;
+    font-weight:600;
+  }
+
+  .confetti{
+    position:fixed;
+    top:-20px;
+    font-size:20px;
+    pointer-events:none;
+    animation: fall linear forwards;
+    z-index:50;
+  }
+  @keyframes fall{
+    to{ transform:translateY(110vh) rotate(360deg); opacity:0.3; }
+  }
+
+  .garden-btn{
+    display:block;
+    margin:14px auto 0;
+    padding:9px 18px;
+    border-radius:14px;
+    border:2px solid var(--line);
+    background:var(--card);
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:13px;
+    color:var(--ink);
+    cursor:pointer;
+  }
+  .garden-panel{
+    margin-top:12px;
+    background:var(--card);
+    border:2px solid var(--line);
+    border-radius:16px;
+    padding:14px;
+    display:none;
+  }
+  .garden-panel.open{ display:block; }
+  .garden-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 4px;
+    border-bottom:1px dashed var(--line);
+  }
+  .garden-row:last-child{ border-bottom:none; }
+  .garden-row .g-label{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:12.5px;
+    width:76px;
+    flex-shrink:0;
+    color:var(--ink-soft);
+  }
+  .garden-row .g-flowers{
+    flex:1;
+    font-size:16px;
+    line-height:1.5;
+    word-break:break-all;
+  }
+  .garden-row .g-count{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:12px;
+    color:var(--ink-soft);
+    flex-shrink:0;
+  }
+</style>
+</head>
+<body class="theme-lv1">
+<div class="wrap">
+  <h1>🌺 헥사가든</h1>
+  <div class="subtitle">추측 없이, 논리만으로 피어나는 화단</div>
+
+  <div class="campaign-timer" id="campaignTimer">
+    <div class="ct-time" id="ctTime">60:00</div>
+    <div class="ct-level" id="ctLevel">1 / 5 단계 · 하드</div>
+    <button class="ct-cancel" id="ctCancel">챌린지 중단</button>
+  </div>
+
+  <div class="pot-zone"><span class="pot" id="pot">🪴</span></div>
+
+  <div class="stats">
+    <div class="stat">
+      <div class="label">🥀 남은 잡초</div>
+      <div class="value" id="mineCount">0</div>
+    </div>
+    <button class="reset-btn" id="resetBtn">↻</button>
+    <div class="stat">
+      <div class="label">⏱ 시간</div>
+      <div class="value" id="timer">0</div>
+    </div>
+  </div>
+
+  <div class="diff-row">
+    <button class="diff-btn active" data-level="lv1">하드 🌹</button>
+    <button class="diff-btn" data-level="lv2">익스퍼트 🪻</button>
+    <button class="diff-btn" data-level="lv3">마스터 🏵️</button>
+    <button class="diff-btn" data-level="lv4">익스트림 🌺</button>
+    <button class="diff-btn" data-level="lv5">멘사 🪷</button>
+  </div>
+
+  <button class="campaign-btn" id="campaignBtn">🏆 60분 챌린지 — 1단계부터 5단계까지 연속 클리어</button>
+
+  <div class="option-row" id="optionRow"></div>
+
+  <div class="mode-row">
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="digMode">🌱 심기</button>
+      <button class="mode-btn" id="flagMode">🚩 표시</button>
+    </div>
+  </div>
+
+  <div class="board-frame">
+    <div class="board-inner">
+      <div class="row-hints" id="rowHints"></div>
+      <div class="board" id="board"></div>
+    </div>
+  </div>
+
+  <div class="msg" id="msg">난이도를 고르고 첫 칸을 눌러보세요</div>
+  <div class="best" id="best"></div>
+
+  <button class="garden-btn" id="gardenBtn">🌷 나의 정원 보기</button>
+  <div class="garden-panel" id="gardenPanel"></div>
+</div>
+
+<script>
+const LEVELS = {
+  lv1: { rows:14, cols:16, mines:45,  flower:'🌹', theme:'theme-lv1', hintMode:'optional', label:'하드' },
+  lv2: { rows:18, cols:20, mines:72,  flower:'🪻', theme:'theme-lv2', hintMode:'always',   label:'익스퍼트' },
+  lv3: { rows:22, cols:24, mines:105, flower:'🏵️', theme:'theme-lv3', hintMode:'always',   label:'마스터' },
+  lv4: { rows:26, cols:28, mines:150, flower:'🌺', theme:'theme-lv4', hintMode:'always',   label:'익스트림' },
+  lv5: { rows:30, cols:30, mines:190, flower:'🪷', theme:'theme-lv5', hintMode:'always',   label:'멘사' }
+};
+const LEVEL_ORDER = ['lv1','lv2','lv3','lv4','lv5'];
+const WILTED = '🥀';
+let SIZE = 30;                 // hex circumradius (recalculated per screen size)
+let HEX_W = Math.round(SIZE*Math.sqrt(3));
+let HEX_H = SIZE*2;
+let ROW_STEP = HEX_H*0.75;
+
+function updateHexMetrics(){
+  const frameWidth = document.querySelector('.board-frame').clientWidth || window.innerWidth;
+  const availableForBoard = Math.max(180, frameWidth - 60); // minus padding + row-hint gutter
+  const perColumn = availableForBoard / (cols + 0.5);
+  let size = perColumn / Math.sqrt(3);
+  size = Math.max(18, Math.min(38, size));
+  SIZE = size;
+  HEX_W = Math.round(SIZE*Math.sqrt(3));
+  HEX_H = SIZE*2;
+  ROW_STEP = HEX_H*0.75;
+}
+
+let level = 'lv1';
+let rows, cols, mineCount;
+let mineGrid = [];
+let adjGrid = [];
+let revealed = [];
+let flagged = [];
+let rowMineCounts = [];
+let revealedSafeCount = 0;
+let gameOver = false;
+let gameWon = false;
+let firstClick = true;
+let timerInterval = null;
+let seconds = 0;
+let showRowHints = false;
+let flagPlacementMode = false;
+
+let campaignMode = false;
+let campaignIndex = 0;
+let campaignSecondsLeft = 3600;
+let campaignInterval = null;
+
+const boardEl = document.getElementById('board');
+boardEl.addEventListener('selectstart', (e)=>{ e.preventDefault(); });
+boardEl.addEventListener('contextmenu', (e)=>{ e.preventDefault(); });
+const rowHintsEl = document.getElementById('rowHints');
+const mineCountEl = document.getElementById('mineCount');
+const timerEl = document.getElementById('timer');
+const msgEl = document.getElementById('msg');
+const bestEl = document.getElementById('best');
+const potEl = document.getElementById('pot');
+const resetBtn = document.getElementById('resetBtn');
+const digModeBtn = document.getElementById('digMode');
+const flagModeBtn = document.getElementById('flagMode');
+const optionRow = document.getElementById('optionRow');
+const gardenBtn = document.getElementById('gardenBtn');
+const gardenPanel = document.getElementById('gardenPanel');
+const campaignBtn = document.getElementById('campaignBtn');
+const campaignTimerEl = document.getElementById('campaignTimer');
+const ctTimeEl = document.getElementById('ctTime');
+const ctLevelEl = document.getElementById('ctLevel');
+const ctCancelBtn = document.getElementById('ctCancel');
+const diffRowEl = document.querySelector('.diff-row');
+
+document.querySelectorAll('.diff-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    if(campaignMode) return;
+    document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    level = btn.dataset.level;
+    document.body.className = LEVELS[level].theme;
+    startGame();
+  });
+});
+
+function formatClock(totalSeconds){
+  const m = Math.floor(totalSeconds/60);
+  const s = totalSeconds%60;
+  return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+
+function updateCampaignDisplay(){
+  ctTimeEl.textContent = formatClock(Math.max(0,campaignSecondsLeft));
+  const cfg = LEVELS[LEVEL_ORDER[campaignIndex]];
+  ctLevelEl.textContent = (campaignIndex+1)+' / '+LEVEL_ORDER.length+' 단계 · '+cfg.label;
+  campaignTimerEl.classList.toggle('urgent', campaignSecondsLeft<=300);
+}
+
+function startCampaign(){
+  campaignMode = true;
+  campaignIndex = 0;
+  campaignSecondsLeft = 3600;
+  campaignTimerEl.classList.add('show');
+  campaignBtn.disabled = true;
+  campaignBtn.textContent = '🏆 챌린지 진행 중...';
+  diffRowEl.style.opacity = '0.5';
+  diffRowEl.style.pointerEvents = 'none';
+  clearInterval(campaignInterval);
+  campaignInterval = setInterval(tickCampaign, 1000);
+  document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('active'));
+  level = LEVEL_ORDER[0];
+  document.body.className = LEVELS[level].theme;
+  updateCampaignDisplay();
+  startGame();
+}
+
+function tickCampaign(){
+  campaignSecondsLeft--;
+  updateCampaignDisplay();
+  if(campaignSecondsLeft<=0){
+    campaignSecondsLeft = 0;
+    updateCampaignDisplay();
+    campaignTimeUp();
+  }
+}
+
+function endCampaignUI(){
+  campaignMode = false;
+  clearInterval(campaignInterval);
+  campaignBtn.disabled = false;
+  campaignBtn.textContent = '🏆 60분 챌린지 — 1단계부터 5단계까지 연속 클리어';
+  diffRowEl.style.opacity = '1';
+  diffRowEl.style.pointerEvents = 'auto';
+}
+
+function campaignTimeUp(){
+  gameOver = true;
+  clearInterval(timerInterval);
+  potEl.className='pot';
+  potEl.textContent='⏰';
+  const reached = campaignIndex+1;
+  msgEl.textContent = '⏰ 60분 종료! '+reached+'단계까지 도달했어요. 대단해요!';
+  endCampaignUI();
+}
+
+function campaignAdvance(){
+  campaignIndex++;
+  if(campaignIndex >= LEVEL_ORDER.length){
+    campaignComplete();
+    return;
+  }
+  level = LEVEL_ORDER[campaignIndex];
+  document.body.className = LEVELS[level].theme;
+  updateCampaignDisplay();
+  msgEl.textContent = '🎉 '+campaignIndex+'단계 클리어! 다음 단계로 이동합니다...';
+  setTimeout(()=>{
+    if(campaignMode) startGame();
+  }, 1600);
+}
+
+function campaignComplete(){
+  const used = 3600 - campaignSecondsLeft;
+  msgEl.textContent = '👑 60분 챌린지 완주! 총 소요 시간 '+formatClock(used)+'. 진짜 실력자예요!';
+  potEl.className='pot win';
+  potEl.textContent='👑';
+  launchConfetti();
+  endCampaignUI();
+}
+
+campaignBtn.addEventListener('click', startCampaign);
+ctCancelBtn.addEventListener('click', ()=>{
+  endCampaignUI();
+  campaignTimerEl.classList.remove('show');
+  msgEl.textContent = '챌린지를 중단했어요. 원하는 난이도로 다시 골라보세요.';
+});
+
+resetBtn.addEventListener('click', ()=>{
+  if(campaignMode && campaignSecondsLeft<=0) return;
+  startGame();
+});
+
+digModeBtn.addEventListener('click', ()=>{
+  flagPlacementMode = false;
+  digModeBtn.classList.add('active');
+  flagModeBtn.classList.remove('active');
+});
+flagModeBtn.addEventListener('click', ()=>{
+  flagPlacementMode = true;
+  flagModeBtn.classList.add('active');
+  digModeBtn.classList.remove('active');
+});
+
+function make2D(r,c,val){
+  const g=[];
+  for(let i=0;i<r;i++){ g.push(new Array(c).fill(val)); }
+  return g;
+}
+
+// ---------- hex neighbor math (odd-r offset via axial conversion) ----------
+function offsetToAxial(col,row){
+  return { q: col - (row - (row & 1)) / 2, r: row };
+}
+function axialToOffset(q,r){
+  return { col: q + (r - (r & 1)) / 2, row: r };
+}
+const AXIAL_DIRS = [[1,0],[1,-1],[0,-1],[-1,0],[-1,1],[0,1]];
+function neighborsOf(row,col,rr,cc){
+  const {q,r} = offsetToAxial(col,row);
+  const result=[];
+  for(const [dq,dr] of AXIAL_DIRS){
+    const off = axialToOffset(q+dq, r+dr);
+    if(off.row>=0 && off.row<rr && off.col>=0 && off.col<cc){
+      result.push({row:off.row, col:off.col});
+    }
+  }
+  return result;
+}
+
+// ---------- generation with no-guess validation ----------
+function tryGenerate(rr,cc,mc,safeR,safeC){
+  const safeSet = new Set();
+  safeSet.add(safeR+','+safeC);
+  for(const n of neighborsOf(safeR,safeC,rr,cc)) safeSet.add(n.row+','+n.col);
+
+  const candidates = [];
+  for(let r=0;r<rr;r++) for(let c=0;c<cc;c++){
+    if(!safeSet.has(r+','+c)) candidates.push({row:r,col:c});
+  }
+  // shuffle
+  for(let i=candidates.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [candidates[i],candidates[j]] = [candidates[j],candidates[i]];
+  }
+  const mg = make2D(rr,cc,false);
+  for(let i=0;i<mc && i<candidates.length;i++){
+    mg[candidates[i].row][candidates[i].col] = true;
+  }
+  const ag = make2D(rr,cc,0);
+  for(let r=0;r<rr;r++) for(let c=0;c<cc;c++){
+    if(mg[r][c]) continue;
+    let cnt=0;
+    for(const n of neighborsOf(r,c,rr,cc)) if(mg[n.row][n.col]) cnt++;
+    ag[r][c]=cnt;
+  }
+
+  const sim = { rows:rr, cols:cc, mineGrid:mg, adjGrid:ag, revealed:make2D(rr,cc,false), flagged:make2D(rr,cc,false) };
+  floodReveal(safeR,safeC,sim);
+  solve(sim);
+
+  let safeRevealed=0;
+  for(let r=0;r<rr;r++) for(let c=0;c<cc;c++){
+    if(sim.revealed[r][c]) safeRevealed++;
+  }
+  const totalSafe = rr*cc - mc;
+  return { solved: safeRevealed===totalSafe, mineGrid:mg, adjGrid:ag };
+}
+
+function floodReveal(row,col,state){
+  if(state.revealed[row][col] || state.mineGrid[row][col]) return;
+  state.revealed[row][col]=true;
+  if(state.adjGrid[row][col]===0){
+    for(const n of neighborsOf(row,col,state.rows,state.cols)){
+      if(!state.mineGrid[n.row][n.col] && !state.revealed[n.row][n.col]){
+        floodReveal(n.row,n.col,state);
+      }
+    }
+  }
+}
+
+function solve(state){
+  let progress = true;
+  while(progress){
+    progress = false;
+    const constraints = [];
+    for(let r=0;r<state.rows;r++){
+      for(let c=0;c<state.cols;c++){
+        if(state.revealed[r][c]){
+          const nbs = neighborsOf(r,c,state.rows,state.cols);
+          const unknown=[]; let flaggedCount=0;
+          for(const n of nbs){
+            if(state.flagged[n.row][n.col]) flaggedCount++;
+            else if(!state.revealed[n.row][n.col]) unknown.push(n);
+          }
+          if(unknown.length>0){
+            constraints.push({ cells:unknown, rem: state.adjGrid[r][c]-flaggedCount });
+          }
+        }
+      }
+    }
+    for(const con of constraints){
+      if(con.rem===0){
+        for(const cell of con.cells){
+          if(!state.revealed[cell.row][cell.col]){ floodReveal(cell.row,cell.col,state); progress=true; }
+        }
+      } else if(con.rem===con.cells.length){
+        for(const cell of con.cells){
+          if(!state.flagged[cell.row][cell.col]){ state.flagged[cell.row][cell.col]=true; progress=true; }
+        }
+      }
+    }
+    if(progress) continue;
+
+    let found=false;
+    for(let i=0;i<constraints.length && !found;i++){
+      for(let j=0;j<constraints.length && !found;j++){
+        if(i===j) continue;
+        const A=constraints[i], B=constraints[j];
+        const setA = new Set(A.cells.map(x=>x.row+','+x.col));
+        const setB = new Set(B.cells.map(x=>x.row+','+x.col));
+        if(setA.size===0 || setB.size===0 || setA.size>=setB.size) continue;
+        let subset=true;
+        for(const k of setA){ if(!setB.has(k)){ subset=false; break; } }
+        if(!subset) continue;
+        const diffCells = B.cells.filter(x=>!setA.has(x.row+','+x.col));
+        const diffRem = B.rem - A.rem;
+        if(diffRem===0){
+          for(const cell of diffCells){
+            if(!state.revealed[cell.row][cell.col]){ floodReveal(cell.row,cell.col,state); progress=true; }
+          }
+          found = progress;
+        } else if(diffRem===diffCells.length){
+          for(const cell of diffCells){
+            if(!state.flagged[cell.row][cell.col]){ state.flagged[cell.row][cell.col]=true; progress=true; }
+          }
+          found = progress;
+        }
+      }
+    }
+  }
+}
+
+function generateWithRetry(rr,cc,mc,safeR,safeC){
+  let mines = mc;
+  for(let tier=0; tier<6; tier++){
+    for(let attempt=0; attempt<400; attempt++){
+      const res = tryGenerate(rr,cc,mines,safeR,safeC);
+      if(res.solved) return { mineGrid:res.mineGrid, adjGrid:res.adjGrid, mines };
+    }
+    mines = Math.max(1, mines-1);
+  }
+  const res = tryGenerate(rr,cc,mines,safeR,safeC);
+  return { mineGrid:res.mineGrid, adjGrid:res.adjGrid, mines };
+}
+
+// ---------- local records (no character system — plain per-browser save) ----------
+const BEST_KEY_PREFIX = 'hexagarden:best:';
+const GARDEN_KEY = 'hexagarden:garden';
+
+function loadBestTime(lvl){
+  try{
+    const raw = localStorage.getItem(BEST_KEY_PREFIX+lvl);
+    return raw!=null ? Number(raw) : null;
+  }catch(e){ return null; }
+}
+function saveBestTime(lvl, time){
+  try{ localStorage.setItem(BEST_KEY_PREFIX+lvl, String(time)); }catch(e){}
+}
+function loadGarden(){
+  try{
+    const raw = localStorage.getItem(GARDEN_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  const empty = {};
+  LEVEL_ORDER.forEach(k=>empty[k]=0);
+  return empty;
+}
+function incrementGarden(lvl){
+  const g = loadGarden();
+  g[lvl] = (g[lvl]||0)+1;
+  try{ localStorage.setItem(GARDEN_KEY, JSON.stringify(g)); }catch(e){}
+  return g;
+}
+
+function renderGardenPanel(counts){
+  gardenPanel.innerHTML = '';
+  LEVEL_ORDER.forEach(k=>{
+    const cfg = LEVELS[k];
+    const count = counts[k]||0;
+    const row = document.createElement('div');
+    row.className='garden-row';
+    const label = document.createElement('div');
+    label.className='g-label';
+    label.textContent = cfg.label;
+    const flowers = document.createElement('div');
+    flowers.className='g-flowers';
+    if(count===0){
+      flowers.textContent='아직 빈 화단이에요';
+      flowers.style.color='var(--ink-soft)';
+      flowers.style.fontSize='12px';
+    } else {
+      const shown = Math.min(count,20);
+      flowers.textContent = cfg.flower.repeat(shown) + (count>20 ? ' …' : '');
+    }
+    const cnt = document.createElement('div');
+    cnt.className='g-count';
+    cnt.textContent = count+'송이';
+    row.appendChild(label);
+    row.appendChild(flowers);
+    row.appendChild(cnt);
+    gardenPanel.appendChild(row);
+  });
+}
+gardenBtn.addEventListener('click', ()=>{
+  const open = gardenPanel.classList.toggle('open');
+  gardenBtn.textContent = open ? '🌷 정원 닫기' : '🌷 나의 정원 보기';
+  if(open) renderGardenPanel(loadGarden());
+});
+
+// ---------- watercolor flower backgrounds ----------
+function makeFlowerSVG(petals, petalColor, centerColor, washColor1, washColor2, opacity){
+  let petalShapes = '';
+  for(let i=0;i<petals;i++){
+    const angle = (360/petals)*i;
+    petalShapes += '<ellipse cx="50" cy="28" rx="12" ry="19" fill="'+petalColor+'" transform="rotate('+angle+' 50 50)"/>';
+  }
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
+    + '<defs><radialGradient id="w" cx="35%" cy="30%" r="75%">'
+    + '<stop offset="0%" stop-color="'+washColor1+'" stop-opacity="0.9"/>'
+    + '<stop offset="60%" stop-color="'+washColor2+'" stop-opacity="0.45"/>'
+    + '<stop offset="100%" stop-color="'+washColor2+'" stop-opacity="0"/>'
+    + '</radialGradient></defs>'
+    + '<g opacity="'+opacity+'">'
+    + '<rect width="100" height="100" fill="url(#w)"/>'
+    + '<g opacity="0.75">'+petalShapes+'</g>'
+    + '<circle cx="50" cy="50" r="9" fill="'+centerColor+'"/>'
+    + '</g></svg>';
+  return 'data:image/svg+xml;utf8,'+encodeURIComponent(svg);
+}
+const FLOWER_PARAMS = {
+  lv1: { petals:8,  petal:'#D98BA0', center:'#B23A56', wash1:'#F3D3DC', wash2:'#EFC2D2' },
+  lv2: { petals:6,  petal:'#B79EF0', center:'#6B4FB0', wash1:'#E8DFFB', wash2:'#D3C2F5' },
+  lv3: { petals:12, petal:'#8E6BA0', center:'#4A3355', wash1:'#E4D5F0', wash2:'#C9AFDA' },
+  lv4: { petals:5,  petal:'#C23B4E', center:'#8E1F30', wash1:'#FBD9DE', wash2:'#F0AEB9' },
+  lv5: { petals:9,  petal:'#C9A227', center:'#96751A', wash1:'#FBEFC9', wash2:'#EAD98C' }
+};
+const FLOWER_BG = {}, FLOWER_BG_FAINT = {};
+LEVEL_ORDER.forEach(k=>{
+  const p = FLOWER_PARAMS[k];
+  FLOWER_BG[k] = makeFlowerSVG(p.petals,p.petal,p.center,p.wash1,p.wash2, 0.8);
+  FLOWER_BG_FAINT[k] = makeFlowerSVG(p.petals,p.petal,p.center,p.wash1,p.wash2, 0.22);
+});
+function applyFlowerBg(lvl){
+  document.body.style.setProperty('--flower-bg', 'url("'+FLOWER_BG[lvl]+'")');
+  document.body.style.setProperty('--flower-bg-faint', 'url("'+FLOWER_BG_FAINT[lvl]+'")');
+}
+
+function renderOptionRow(){
+  const cfg = LEVELS[level];
+  optionRow.innerHTML = '';
+  optionRow.classList.remove('locked');
+  if(cfg.hintMode==='none'){
+    showRowHints = false;
+    optionRow.textContent = '';
+  } else if(cfg.hintMode==='optional'){
+    const label = document.createElement('label');
+    label.style.display='flex'; label.style.alignItems='center'; label.style.gap='6px'; label.style.cursor='pointer';
+    const cb = document.createElement('input');
+    cb.type='checkbox'; cb.checked = showRowHints;
+    cb.addEventListener('change', ()=>{ showRowHints = cb.checked; renderBoard(); });
+    label.appendChild(cb);
+    label.appendChild(document.createTextNode('가로줄 잡초 총합 힌트 보기'));
+    optionRow.appendChild(label);
+  } else if(cfg.hintMode==='always'){
+    showRowHints = true;
+    optionRow.classList.add('locked');
+    optionRow.textContent = '🚩 가로줄 잡초 총합 힌트 항상 표시';
+  }
+}
+
+function updateBestDisplay(){
+  const t = loadBestTime(level);
+  bestEl.textContent = t!=null ? ('최고 기록: ' + t + '초') : '';
+}
+
+function startGame(){
+  const cfg = LEVELS[level];
+  applyFlowerBg(level);
+  rows = cfg.rows; cols = cfg.cols; mineCount = cfg.mines;
+  mineGrid=null; adjGrid=null;
+  revealed = make2D(rows,cols,false);
+  flagged = make2D(rows,cols,false);
+  revealedSafeCount = 0;
+  gameOver = false;
+  gameWon = false;
+  firstClick = true;
+  seconds = 0;
+  clearInterval(timerInterval);
+  timerEl.textContent='0';
+  mineCountEl.textContent = mineCount;
+  msgEl.textContent = '첫 칸을 눌러 화단을 열어보세요';
+  potEl.className = 'pot';
+  potEl.textContent = '🪴';
+  renderOptionRow();
+  updateBestDisplay();
+  updateHexMetrics();
+  layoutBoard();
+  renderEmptyBoard();
+}
+
+function relayout(){
+  if(!rows || !cols) return;
+  updateHexMetrics();
+  layoutBoard();
+  const cells = boardEl.children;
+  for(let i=0;i<cells.length;i++){
+    const btn = cells[i];
+    const r = +btn.dataset.row, c = +btn.dataset.col;
+    const {left,top} = cellPixelPos(r,c);
+    btn.style.left = left+'px';
+    btn.style.top = top+'px';
+    btn.style.width = HEX_W+'px';
+    btn.style.height = HEX_H+'px';
+  }
+  renderRowHints();
+}
+let relayoutTimer = null;
+window.addEventListener('resize', ()=>{
+  clearTimeout(relayoutTimer);
+  relayoutTimer = setTimeout(relayout, 150);
+});
+
+function layoutBoard(){
+  const width = HEX_W*cols + HEX_W/2;
+  const height = ROW_STEP*(rows-1) + HEX_H;
+  boardEl.style.width = width+'px';
+  boardEl.style.height = height+'px';
+}
+
+function cellPixelPos(row,col){
+  const left = col*HEX_W + (row%2 ? HEX_W/2 : 0);
+  const top = row*ROW_STEP;
+  return {left,top};
+}
+
+function renderEmptyBoard(){
+  boardEl.innerHTML='';
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      const btn = document.createElement('button');
+      btn.className='cell';
+      const {left,top} = cellPixelPos(r,c);
+      btn.style.left=left+'px';
+      btn.style.top=top+'px';
+      btn.style.width=HEX_W+'px';
+      btn.style.height=HEX_H+'px';
+      btn.dataset.row=r; btn.dataset.col=c;
+      const fill = document.createElement('div');
+      fill.className = 'cell-fill';
+      btn.appendChild(fill);
+      btn.addEventListener('click', ()=>handleCellClick(r,c));
+      btn.addEventListener('contextmenu', (e)=>{ e.preventDefault(); handleFlag(r,c); });
+      boardEl.appendChild(btn);
+    }
+  }
+  renderRowHints();
+}
+
+function renderRowHints(){
+  rowHintsEl.innerHTML='';
+  rowHintsEl.style.paddingTop='0px';
+  for(let r=0;r<rows;r++){
+    const div = document.createElement('div');
+    div.className='row-hint';
+    div.style.height = ROW_STEP+'px';
+    if(r===rows-1) div.style.height = HEX_H+'px';
+    if(showRowHints && rowMineCounts.length){
+      div.textContent = '🥀'+rowMineCounts[r];
+    }
+    rowHintsEl.appendChild(div);
+  }
+}
+
+function renderBoard(){
+  const cells = boardEl.children;
+  for(let r=0;r<rows;r++){
+    for(let c=0;c<cols;c++){
+      const idx = r*cols+c;
+      const btn = cells[idx];
+      const fill = btn.querySelector('.cell-fill');
+      btn.className='cell';
+      fill.className='cell-fill';
+      fill.textContent='';
+      if(revealed[r][c]){
+        btn.classList.add('revealed');
+        if(mineGrid && mineGrid[r][c]){
+          btn.classList.add('mine');
+          fill.textContent = WILTED;
+        } else {
+          const n = adjGrid[r][c];
+          if(n>0){ fill.textContent=n; fill.classList.add('n'+n); }
+          else { fill.textContent = LEVELS[level].flower; }
+        }
+      } else if(flagged[r][c]){
+        btn.classList.add('flagged');
+        fill.textContent = '🚩';
+      }
+    }
+  }
+  renderRowHints();
+}
+
+function handleCellClick(r,c){
+  if(gameOver||gameWon) return;
+
+  if(firstClick){
+    const gen = generateWithRetry(rows,cols,mineCount,r,c);
+    mineGrid = gen.mineGrid;
+    adjGrid = gen.adjGrid;
+    mineCount = gen.mines;
+    mineCountEl.textContent = mineCount;
+    rowMineCounts = [];
+    for(let rr=0;rr<rows;rr++){
+      let cnt=0;
+      for(let cc=0;cc<cols;cc++) if(mineGrid[rr][cc]) cnt++;
+      rowMineCounts.push(cnt);
+    }
+    firstClick=false;
+    startTimer();
+  }
+
+  if(flagPlacementMode){ handleFlag(r,c); return; }
+
+  if(flagged[r][c]) return;
+  if(revealed[r][c]) return;
+
+  if(mineGrid[r][c]){
+    revealed[r][c]=true;
+    for(let rr=0;rr<rows;rr++) for(let cc=0;cc<cols;cc++) if(mineGrid[rr][cc]) revealed[rr][cc]=true;
+    renderBoard();
+    const cells = boardEl.children;
+    cells[r*cols+c].classList.add('exploded');
+    endGame(false);
+    return;
+  }
+
+  const state = {rows,cols,mineGrid,adjGrid,revealed,flagged};
+  floodReveal(r,c,state);
+  renderBoard();
+  checkWin();
+}
+
+function handleFlag(r,c){
+  if(gameOver||gameWon||firstClick) return;
+  if(revealed[r][c]) return;
+  flagged[r][c] = !flagged[r][c];
+  renderBoard();
+}
+
+function countRevealed(){
+  let cnt=0;
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++) if(revealed[r][c] && !mineGrid[r][c]) cnt++;
+  return cnt;
+}
+
+function checkWin(){
+  const totalSafe = rows*cols - mineCount;
+  if(countRevealed()===totalSafe){
+    endGame(true);
+  }
+}
+
+function endGame(won){
+  gameOver=!won; gameWon=won;
+  clearInterval(timerInterval);
+  if(won){
+    potEl.className='pot win';
+    potEl.textContent = LEVELS[level].flower+'✨';
+    const current = loadBestTime(level);
+    const isNew = current===null || seconds<current;
+    if(isNew){
+      saveBestTime(level, seconds);
+      bestEl.textContent = '🎉 새 기록! ' + seconds + '초';
+    } else {
+      bestEl.textContent = '최고 기록: ' + current + '초';
+    }
+    launchConfetti();
+    const counts = incrementGarden(level);
+    if(gardenPanel.classList.contains('open')) renderGardenPanel(counts);
+    if(campaignMode){
+      campaignAdvance();
+    } else {
+      msgEl.textContent = '🎉 화단이 완성됐어요! 추측 없이 논리로 다 풀었어요!';
+    }
+  } else {
+    potEl.className='pot';
+    potEl.textContent='🥀';
+    msgEl.textContent = campaignMode
+      ? '앗, 잡초였어요. ↻ 버튼으로 이 단계를 다시 시도하세요 (시간은 계속 흘러요!)'
+      : '앗, 잡초였어요. 사실 힌트로 확정할 수 있는 칸이었어요 — 다시 살펴보며 도전해봐요!';
+  }
+}
+
+function startTimer(){
+  timerInterval = setInterval(()=>{ seconds++; timerEl.textContent=seconds; }, 1000);
+}
+
+function launchConfetti(){
+  const flower = LEVELS[level].flower;
+  const emojis = [flower,'✨','🌿'];
+  for(let i=0;i<24;i++){
+    setTimeout(()=>{
+      const span=document.createElement('div');
+      span.className='confetti';
+      span.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+      span.style.left = Math.random()*100+'vw';
+      span.style.animationDuration = (2+Math.random()*1.5)+'s';
+      document.body.appendChild(span);
+      setTimeout(()=>span.remove(),3600);
+    }, i*60);
+  }
+}
+
+startGame();
+</script>
+</body>
+</html>
