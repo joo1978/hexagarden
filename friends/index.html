@@ -620,7 +620,11 @@ function campaignAdvance(){
 
 function campaignComplete(){
   const used = 3600 - campaignSecondsLeft;
-  msgEl.textContent = '👑 60분 챌린지 완주! 총 소요 시간 '+formatClock(used)+'. 진짜 실력자예요!';
+  const prevBest = loadCampaignBest();
+  const isNew = prevBest==null || used<prevBest;
+  if(isNew) saveCampaignBest(used);
+  const extra = isNew ? ' 🎉 개인 최고기록 경신!' : (' (내 최고기록 '+formatClock(prevBest)+')');
+  msgEl.textContent = '👑 60분 챌린지 완주! 총 소요 시간 '+formatClock(used)+'.'+extra;
   potEl.className='pot win';
   potEl.textContent='👑';
   launchConfetti();
@@ -790,16 +794,17 @@ function solve(state){
 }
 
 function generateWithRetry(rr,cc,mc,safeR,safeC){
+  // solved !== true인 판은 어떠한 경우에도 반환하지 않는다.
+  // mines가 0이 되면 인접한 지뢰가 전혀 없어 첫 클릭 한 번에 전체가 flood-reveal되므로
+  // solved가 반드시 true가 되어 이 루프는 항상 종료된다.
   let mines = mc;
-  for(let tier=0; tier<6; tier++){
+  while(true){
     for(let attempt=0; attempt<400; attempt++){
       const res = tryGenerate(rr,cc,mines,safeR,safeC);
       if(res.solved) return { mineGrid:res.mineGrid, adjGrid:res.adjGrid, mines };
     }
-    mines = Math.max(1, mines-1);
+    mines = Math.max(0, mines-1);
   }
-  const res = tryGenerate(rr,cc,mines,safeR,safeC);
-  return { mineGrid:res.mineGrid, adjGrid:res.adjGrid, mines };
 }
 
 // ---------- local records (no character system — plain per-browser save) ----------
@@ -829,6 +834,17 @@ function incrementGarden(lvl){
   g[lvl] = (g[lvl]||0)+1;
   try{ localStorage.setItem(GARDEN_KEY, JSON.stringify(g)); }catch(e){}
   return g;
+}
+
+const CAMPAIGN_BEST_KEY = 'hexagarden:campaignBest';
+function loadCampaignBest(){
+  try{
+    const raw = localStorage.getItem(CAMPAIGN_BEST_KEY);
+    return raw!=null ? Number(raw) : null;
+  }catch(e){ return null; }
+}
+function saveCampaignBest(time){
+  try{ localStorage.setItem(CAMPAIGN_BEST_KEY, String(time)); }catch(e){}
 }
 
 function renderGardenPanel(counts){
@@ -1104,6 +1120,16 @@ function handleFlag(r,c){
   if(revealed[r][c]) return;
   flagged[r][c] = !flagged[r][c];
   renderBoard();
+  updateMineCounter();
+}
+
+function countFlags(){
+  let cnt=0;
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++) if(flagged[r][c]) cnt++;
+  return cnt;
+}
+function updateMineCounter(){
+  mineCountEl.textContent = mineCount - countFlags();
 }
 
 function countRevealed(){
