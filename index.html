@@ -13,46 +13,41 @@
     --ink:#5B4A46;
     --ink-soft:#9C8A85;
     --line:#F0DCE4;
-    --tile:#FFE3EE;
-    --tile-deep:#FF9EC4;
-    --accent:#FF6FA5;
-    --accent-deep:#E14C86;
-    --hex-line:#FFC7DE;
-  }
-  body.theme-lv2{
-    --tile:#FFE4D6;
-    --tile-deep:#FFAE8A;
-    --accent:#FF8A5C;
-    --accent-deep:#E56A3E;
-    --hex-line:#FFCDB3;
-  }
-  body.theme-lv3{
-    --tile:#FFEDB8;
-    --tile-deep:#F2A93B;
-    --accent:#F2A93B;
-    --accent-deep:#D98A1E;
-    --hex-line:#FFDE9E;
-  }
-  body.theme-lv4{
     --tile:#F3D3DC;
     --tile-deep:#D98BA0;
     --accent:#D9678A;
     --accent-deep:#B23A56;
     --hex-line:#EFC2D2;
+    --flower-bg:none;
+    --flower-bg-faint:none;
   }
-  body.theme-lv5{
+  body.theme-lv2{
     --tile:#E8DFFB;
     --tile-deep:#B79EF0;
     --accent:#8E6BD8;
     --accent-deep:#6B4FB0;
     --hex-line:#D3C2F5;
   }
-  body.theme-lv6{
+  body.theme-lv3{
     --tile:#E4D5F0;
     --tile-deep:#6B4C7A;
     --accent:#6B4C7A;
     --accent-deep:#4A3355;
     --hex-line:#C9AFDA;
+  }
+  body.theme-lv4{
+    --tile:#FBD9DE;
+    --tile-deep:#C23B4E;
+    --accent:#C23B4E;
+    --accent-deep:#8E1F30;
+    --hex-line:#F0AEB9;
+  }
+  body.theme-lv5{
+    --tile:#FBEFC9;
+    --tile-deep:#C9A227;
+    --accent:#C9A227;
+    --accent-deep:#96751A;
+    --hex-line:#EAD98C;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html,body{margin:0; padding:0; overflow-x:hidden;}
@@ -85,6 +80,95 @@
     color:var(--ink-soft);
     margin-bottom:14px;
     font-weight:600;
+  }
+
+  /* ---------- character overlay ---------- */
+  .char-overlay{
+    position:fixed; inset:0; z-index:200;
+    background:
+      radial-gradient(circle at 12% 8%, #FFE9F1 0%, transparent 42%),
+      radial-gradient(circle at 88% 92%, #FFF3D6 0%, transparent 42%),
+      var(--cream);
+    display:flex; align-items:center; justify-content:center;
+    padding:20px;
+  }
+  .char-overlay.hidden{ display:none; }
+  .char-overlay-card{
+    background:var(--card);
+    border:2px solid var(--line);
+    border-radius:22px;
+    padding:26px 20px;
+    max-width:420px;
+    width:100%;
+    text-align:center;
+    box-shadow:0 8px 0 var(--line);
+  }
+  .char-overlay-title{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:19px;
+    margin-bottom:4px;
+  }
+  .char-overlay-sub{
+    font-size:12px;
+    color:var(--ink-soft);
+    font-weight:600;
+    margin-bottom:18px;
+  }
+  .char-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+  }
+  .char-card{
+    background:var(--cream);
+    border:2px solid var(--line);
+    border-radius:16px;
+    padding:14px 6px;
+    cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+    transition: transform .08s ease;
+  }
+  .char-card:active{ transform:translateY(2px); }
+  .char-avatar{
+    width:52px; height:52px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:26px;
+    border:2px solid rgba(255,255,255,0.7);
+  }
+  .char-name{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:12.5px;
+    color:var(--ink);
+  }
+
+  .char-bar{
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    margin-bottom:10px;
+  }
+  .char-chip{
+    display:flex; align-items:center; gap:6px;
+    background:var(--card);
+    border:2px solid var(--line);
+    border-radius:20px;
+    padding:4px 12px 4px 4px;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:12.5px;
+  }
+  .char-chip .char-avatar{ width:26px; height:26px; font-size:14px; border-width:1.5px; }
+  .char-switch-btn{
+    border:2px solid var(--line);
+    background:var(--card);
+    border-radius:20px;
+    padding:6px 14px;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    cursor:pointer;
   }
 
   .pot-zone{
@@ -168,27 +252,71 @@
   .option-row input{ accent-color:var(--accent); width:16px; height:16px; }
   .option-row.locked{ color:var(--accent-deep); }
 
-  .mode-row{ display:flex; justify-content:center; margin-bottom:12px; }
-  .mode-toggle{
-    display:flex;
-    background:var(--card);
-    border:2px solid var(--line);
-    border-radius:14px;
-    padding:4px;
-    gap:4px;
+  .gesture-hint{
+    text-align:center;
+    font-size:11.5px;
+    color:var(--ink-soft);
+    font-weight:700;
+    margin-bottom:12px;
   }
-  .mode-btn{
-    padding:8px 16px;
-    border-radius:10px;
-    border:none;
-    background:transparent;
+
+  .campaign-timer{
+    display:none;
+    text-align:center;
+    background:var(--card);
+    border:2px solid var(--accent);
+    border-radius:16px;
+    padding:10px 14px;
+    margin-bottom:12px;
+  }
+  .campaign-timer.show{ display:block; }
+  .campaign-timer .ct-time{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:34px;
+    color:var(--accent-deep);
+    letter-spacing:1px;
+  }
+  .campaign-timer.urgent .ct-time{
+    color:#D92B2B;
+    animation:urgentPulse 1s ease-in-out infinite;
+  }
+  @keyframes urgentPulse{
+    0%,100%{ opacity:1; } 50%{ opacity:0.4; }
+  }
+  .campaign-timer .ct-level{
     font-family:'Baloo 2', sans-serif;
     font-weight:700;
     font-size:13px;
     color:var(--ink-soft);
+    margin-top:2px;
+  }
+  .campaign-timer .ct-cancel{
+    margin-top:6px;
+    font-size:11.5px;
+    font-weight:700;
+    color:var(--ink-soft);
+    text-decoration:underline;
+    cursor:pointer;
+    background:none;
+    border:none;
+  }
+  .campaign-btn{
+    display:block;
+    width:100%;
+    margin-bottom:12px;
+    padding:11px 10px;
+    border-radius:14px;
+    border:none;
+    background:linear-gradient(135deg, var(--accent), var(--accent-deep));
+    color:#fff;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:14px;
     cursor:pointer;
   }
-  .mode-btn.active{ background:var(--tile); color:var(--ink); }
+  .campaign-btn:active{ filter:brightness(0.95); }
+  .campaign-btn:disabled{ opacity:0.5; }
 
   .board-frame{
     background:var(--card);
@@ -234,13 +362,18 @@
     clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
     cursor:pointer;
     user-select:none;
+    -webkit-touch-callout:none;
+    touch-action:manipulation;
     transition: filter .1s ease;
   }
   .cell:active{ filter:brightness(0.96); }
   .cell-fill{
     position:absolute;
     inset:1.5px;
-    background:var(--tile);
+    background-color:var(--tile);
+    background-image:var(--flower-bg);
+    background-size:cover;
+    background-position:center;
     clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
     display:flex;
     align-items:center;
@@ -251,7 +384,7 @@
     color:var(--ink);
     pointer-events:none;
   }
-  .cell.revealed .cell-fill{ background:var(--card); }
+  .cell.revealed .cell-fill{ background-color:var(--card); background-image:var(--flower-bg-faint); }
   .cell.revealed{ cursor:default; }
   .cell.revealed:active{ filter:none; }
   .cell.mine.exploded .cell-fill{ background:#FF8080; }
@@ -291,9 +424,10 @@
     to{ transform:translateY(110vh) rotate(360deg); opacity:0.3; }
   }
 
+  .bottom-btns{ display:flex; gap:8px; justify-content:center; margin-top:14px; flex-wrap:wrap; }
   .garden-btn{
     display:block;
-    margin:14px auto 0;
+    margin:0;
     padding:9px 18px;
     border-radius:14px;
     border:2px solid var(--line);
@@ -342,12 +476,51 @@
     color:var(--ink-soft);
     flex-shrink:0;
   }
+
+  .rank-tabs{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+  .rank-tab{
+    padding:6px 10px; border-radius:10px; border:2px solid var(--line);
+    background:var(--cream); font-family:'Baloo 2', sans-serif; font-weight:700; font-size:11.5px;
+    color:var(--ink-soft); cursor:pointer;
+  }
+  .rank-tab.active{ background:var(--tile); border-color:var(--tile-deep); color:var(--ink); }
+  .rank-row{
+    display:flex; align-items:center; gap:8px;
+    padding:7px 4px; border-bottom:1px dashed var(--line);
+    font-family:'Baloo 2', sans-serif; font-size:12.5px;
+  }
+  .rank-row:last-child{ border-bottom:none; }
+  .rank-pos{ width:26px; text-align:center; font-weight:800; flex-shrink:0; }
+  .rank-name{ flex:1; font-weight:700; display:flex; align-items:center; gap:6px; min-width:0; }
+  .rank-time{ font-weight:700; color:var(--ink-soft); font-size:12px; flex-shrink:0; }
+  .rank-empty{ text-align:center; color:var(--ink-soft); font-size:12px; padding:10px 0; }
+  .rank-note{ text-align:center; color:var(--ink-soft); font-size:10.5px; margin-top:10px; line-height:1.5; }
 </style>
 </head>
 <body class="theme-lv1">
+
+<div class="char-overlay" id="charOverlay">
+  <div class="char-overlay-card">
+    <div class="char-overlay-title">🌷 누가 화단을 가꿀까요?</div>
+    <div class="char-overlay-sub">캐릭터를 골라주세요 — 각자 기록이 따로 쌓여요</div>
+    <div class="char-grid" id="charGrid"></div>
+  </div>
+</div>
+
 <div class="wrap">
   <h1>🌺 헥사가든</h1>
   <div class="subtitle">추측 없이, 논리만으로 피어나는 화단</div>
+
+  <div class="char-bar">
+    <div class="char-chip" id="charChip"></div>
+    <button class="char-switch-btn" id="charSwitchBtn">캐릭터 변경</button>
+  </div>
+
+  <div class="campaign-timer" id="campaignTimer">
+    <div class="ct-time" id="ctTime">60:00</div>
+    <div class="ct-level" id="ctLevel">1 / 5 단계 · 하드</div>
+    <button class="ct-cancel" id="ctCancel">챌린지 중단</button>
+  </div>
 
   <div class="pot-zone"><span class="pot" id="pot">🪴</span></div>
 
@@ -364,22 +537,18 @@
   </div>
 
   <div class="diff-row">
-    <button class="diff-btn active" data-level="lv1">쉬움 🌸</button>
-    <button class="diff-btn" data-level="lv2">초중급 🌷</button>
-    <button class="diff-btn" data-level="lv3">보통 🌻</button>
-    <button class="diff-btn" data-level="lv4">고급 🌹</button>
-    <button class="diff-btn" data-level="lv5">매우어려움 🪻</button>
-    <button class="diff-btn" data-level="lv6">지옥 🏵️</button>
+    <button class="diff-btn active" data-level="lv1">하드 🌹</button>
+    <button class="diff-btn" data-level="lv2">익스퍼트 🪻</button>
+    <button class="diff-btn" data-level="lv3">마스터 🏵️</button>
+    <button class="diff-btn" data-level="lv4">익스트림 🌺</button>
+    <button class="diff-btn" data-level="lv5">멘사 🪷</button>
   </div>
+
+  <button class="campaign-btn" id="campaignBtn">🏆 60분 챌린지 — 1단계부터 5단계까지 연속 클리어</button>
 
   <div class="option-row" id="optionRow"></div>
 
-  <div class="mode-row">
-    <div class="mode-toggle">
-      <button class="mode-btn active" id="digMode">🌱 심기</button>
-      <button class="mode-btn" id="flagMode">🚩 표시</button>
-    </div>
-  </div>
+  <div class="gesture-hint">두 번 톡톡 눌러 심기 · 꾹 눌러서 표시 (다시 꾹 누르면 표시 취소) · PC는 우클릭도 가능</div>
 
   <div class="board-frame">
     <div class="board-inner">
@@ -388,23 +557,26 @@
     </div>
   </div>
 
-  <div class="msg" id="msg">난이도를 고르고 첫 칸을 눌러보세요</div>
+  <div class="msg" id="msg">난이도를 고르고 첫 칸을 두 번 눌러보세요</div>
   <div class="best" id="best"></div>
 
-  <button class="garden-btn" id="gardenBtn">🌷 나의 정원 보기</button>
+  <div class="bottom-btns">
+    <button class="garden-btn" id="gardenBtn">🌷 나의 정원 보기</button>
+    <button class="garden-btn" id="rankingBtn">🏆 랭킹 보기</button>
+  </div>
   <div class="garden-panel" id="gardenPanel"></div>
+  <div class="garden-panel" id="rankingPanel"></div>
 </div>
 
 <script>
 const LEVELS = {
-  lv1: { rows:8,  cols:9,  mines:10, flower:'🌸', theme:'theme-lv1', hintMode:'none',     label:'쉬움' },
-  lv2: { rows:9,  cols:10, mines:15, flower:'🌷', theme:'theme-lv2', hintMode:'none',     label:'초중급' },
-  lv3: { rows:10, cols:12, mines:20, flower:'🌻', theme:'theme-lv3', hintMode:'optional', label:'보통' },
-  lv4: { rows:11, cols:13, mines:26, flower:'🌹', theme:'theme-lv4', hintMode:'always',   label:'고급' },
-  lv5: { rows:13, cols:15, mines:38,  flower:'🪻', theme:'theme-lv5', hintMode:'always', label:'매우어려움' },
-  lv6: { rows:30, cols:30, mines:190, flower:'🏵️', theme:'theme-lv6', hintMode:'always', label:'지옥' }
+  lv1: { rows:14, cols:16, mines:45,  flower:'🌹', theme:'theme-lv1', hintMode:'optional', label:'하드' },
+  lv2: { rows:18, cols:20, mines:72,  flower:'🪻', theme:'theme-lv2', hintMode:'always',   label:'익스퍼트' },
+  lv3: { rows:22, cols:24, mines:105, flower:'🏵️', theme:'theme-lv3', hintMode:'always',   label:'마스터' },
+  lv4: { rows:26, cols:28, mines:150, flower:'🌺', theme:'theme-lv4', hintMode:'always',   label:'익스트림' },
+  lv5: { rows:30, cols:30, mines:190, flower:'🪷', theme:'theme-lv5', hintMode:'always',   label:'멘사' }
 };
-const LEVEL_ORDER = ['lv1','lv2','lv3','lv4','lv5','lv6'];
+const LEVEL_ORDER = ['lv1','lv2','lv3','lv4','lv5'];
 const WILTED = '🥀';
 let SIZE = 30;                 // hex circumradius (recalculated per screen size)
 let HEX_W = Math.round(SIZE*Math.sqrt(3));
@@ -436,8 +608,12 @@ let gameWon = false;
 let firstClick = true;
 let timerInterval = null;
 let seconds = 0;
-let flagPlacementMode = false;
 let showRowHints = false;
+
+let campaignMode = false;
+let campaignIndex = 0;
+let campaignSecondsLeft = 3600;
+let campaignInterval = null;
 
 const boardEl = document.getElementById('board');
 const rowHintsEl = document.getElementById('rowHints');
@@ -447,14 +623,21 @@ const msgEl = document.getElementById('msg');
 const bestEl = document.getElementById('best');
 const potEl = document.getElementById('pot');
 const resetBtn = document.getElementById('resetBtn');
-const digModeBtn = document.getElementById('digMode');
-const flagModeBtn = document.getElementById('flagMode');
 const optionRow = document.getElementById('optionRow');
 const gardenBtn = document.getElementById('gardenBtn');
 const gardenPanel = document.getElementById('gardenPanel');
+const rankingBtn = document.getElementById('rankingBtn');
+const rankingPanel = document.getElementById('rankingPanel');
+const campaignBtn = document.getElementById('campaignBtn');
+const campaignTimerEl = document.getElementById('campaignTimer');
+const ctTimeEl = document.getElementById('ctTime');
+const ctLevelEl = document.getElementById('ctLevel');
+const ctCancelBtn = document.getElementById('ctCancel');
+const diffRowEl = document.querySelector('.diff-row');
 
 document.querySelectorAll('.diff-btn').forEach(btn=>{
   btn.addEventListener('click', ()=>{
+    if(campaignMode) return;
     document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('active'));
     btn.classList.add('active');
     level = btn.dataset.level;
@@ -463,17 +646,101 @@ document.querySelectorAll('.diff-btn').forEach(btn=>{
   });
 });
 
-digModeBtn.addEventListener('click', ()=>{
-  flagPlacementMode = false;
-  digModeBtn.classList.add('active');
-  flagModeBtn.classList.remove('active');
+function formatClock(totalSeconds){
+  const m = Math.floor(totalSeconds/60);
+  const s = totalSeconds%60;
+  return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+
+function updateCampaignDisplay(){
+  ctTimeEl.textContent = formatClock(Math.max(0,campaignSecondsLeft));
+  const cfg = LEVELS[LEVEL_ORDER[campaignIndex]];
+  ctLevelEl.textContent = (campaignIndex+1)+' / '+LEVEL_ORDER.length+' 단계 · '+cfg.label;
+  campaignTimerEl.classList.toggle('urgent', campaignSecondsLeft<=300);
+}
+
+function startCampaign(){
+  campaignMode = true;
+  campaignIndex = 0;
+  campaignSecondsLeft = 3600;
+  campaignTimerEl.classList.add('show');
+  campaignBtn.disabled = true;
+  campaignBtn.textContent = '🏆 챌린지 진행 중...';
+  diffRowEl.style.opacity = '0.5';
+  diffRowEl.style.pointerEvents = 'none';
+  clearInterval(campaignInterval);
+  campaignInterval = setInterval(tickCampaign, 1000);
+  document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('active'));
+  level = LEVEL_ORDER[0];
+  document.body.className = LEVELS[level].theme;
+  updateCampaignDisplay();
+  startGame();
+}
+
+function tickCampaign(){
+  campaignSecondsLeft--;
+  updateCampaignDisplay();
+  if(campaignSecondsLeft<=0){
+    campaignSecondsLeft = 0;
+    updateCampaignDisplay();
+    campaignTimeUp();
+  }
+}
+
+function endCampaignUI(){
+  campaignMode = false;
+  clearInterval(campaignInterval);
+  campaignBtn.disabled = false;
+  campaignBtn.textContent = '🏆 60분 챌린지 — 1단계부터 5단계까지 연속 클리어';
+  diffRowEl.style.opacity = '1';
+  diffRowEl.style.pointerEvents = 'auto';
+}
+
+function campaignTimeUp(){
+  gameOver = true;
+  clearInterval(timerInterval);
+  potEl.className='pot';
+  potEl.textContent='⏰';
+  const reached = campaignIndex+1;
+  msgEl.textContent = '⏰ 60분 종료! '+reached+'단계까지 도달했어요. 대단해요!';
+  endCampaignUI();
+}
+
+function campaignAdvance(){
+  campaignIndex++;
+  if(campaignIndex >= LEVEL_ORDER.length){
+    campaignComplete();
+    return;
+  }
+  level = LEVEL_ORDER[campaignIndex];
+  document.body.className = LEVELS[level].theme;
+  updateCampaignDisplay();
+  msgEl.textContent = '🎉 '+campaignIndex+'단계 클리어! 다음 단계로 이동합니다...';
+  setTimeout(()=>{
+    if(campaignMode) startGame();
+  }, 1600);
+}
+
+function campaignComplete(){
+  const used = 3600 - campaignSecondsLeft;
+  msgEl.textContent = '👑 60분 챌린지 완주! 총 소요 시간 '+formatClock(used)+'. 진짜 실력자예요!';
+  potEl.className='pot win';
+  potEl.textContent='👑';
+  launchConfetti();
+  endCampaignUI();
+}
+
+campaignBtn.addEventListener('click', startCampaign);
+ctCancelBtn.addEventListener('click', ()=>{
+  endCampaignUI();
+  campaignTimerEl.classList.remove('show');
+  msgEl.textContent = '챌린지를 중단했어요. 원하는 난이도로 다시 골라보세요.';
 });
-flagModeBtn.addEventListener('click', ()=>{
-  flagPlacementMode = true;
-  flagModeBtn.classList.add('active');
-  digModeBtn.classList.remove('active');
+
+resetBtn.addEventListener('click', ()=>{
+  if(campaignMode && campaignSecondsLeft<=0) return;
+  startGame();
 });
-resetBtn.addEventListener('click', startGame);
 
 function make2D(r,c,val){
   const g=[];
@@ -627,45 +894,164 @@ function generateWithRetry(rr,cc,mc,safeR,safeC){
   return { mineGrid:res.mineGrid, adjGrid:res.adjGrid, mines };
 }
 
-// ---------- game flow ----------
-async function loadBest(){
-  try{
-    const res = await window.storage.get('hexagarden-best:'+level);
-    if(res && res.value){
-      const t = JSON.parse(res.value);
-      bestEl.textContent = '최고 기록: ' + t.time + '초';
-    } else { bestEl.textContent=''; }
-  }catch(e){ bestEl.textContent=''; }
-}
-async function saveBest(time){
-  try{
-    const res = await window.storage.get('hexagarden-best:'+level).catch(()=>null);
-    let current=null;
-    if(res && res.value) current = JSON.parse(res.value).time;
-    if(current===null || time<current){
-      await window.storage.set('hexagarden-best:'+level, JSON.stringify({time}));
-      bestEl.textContent = '🎉 새 기록! ' + time + '초';
-    } else {
-      bestEl.textContent = '최고 기록: ' + current + '초';
-    }
-  }catch(e){}
+// ---------- characters ----------
+const CHARACTERS = [
+  { id:'rose',  name:'Rose',  emoji:'👩', bg:'#F3D3DC' },
+  { id:'iris',  name:'Iris',  emoji:'👩', bg:'#E8DFFB' },
+  { id:'luna',  name:'Luna',  emoji:'👩', bg:'#FBEFC9' },
+  { id:'hazel', name:'Hazel', emoji:'👧', bg:'#E4D5F0' },
+  { id:'leo',   name:'Leo',   emoji:'👦', bg:'#FBD9DE' },
+  { id:'max',   name:'Max',   emoji:'👨', bg:'#D8ECE6' }
+];
+const LAST_CHAR_KEY = 'hexagarden:lastCharacter';
+const RECORD_KEY_PREFIX = 'hexagarden:record:';
+let currentCharacter = null;
+let currentRecord = { best:{}, garden:{} };
+
+const charOverlay = document.getElementById('charOverlay');
+const charGrid = document.getElementById('charGrid');
+const charChip = document.getElementById('charChip');
+const charSwitchBtn = document.getElementById('charSwitchBtn');
+
+function buildAvatar(ch, size){
+  const av = document.createElement('div');
+  av.className = 'char-avatar';
+  if(size){ av.style.width=size+'px'; av.style.height=size+'px'; av.style.fontSize=Math.round(size*0.52)+'px'; }
+  av.style.background = ch.bg;
+  av.textContent = ch.emoji;
+  return av;
 }
 
-async function loadGarden(){
+function renderCharGrid(){
+  charGrid.innerHTML = '';
+  CHARACTERS.forEach(ch=>{
+    const card = document.createElement('button');
+    card.className = 'char-card';
+    card.type = 'button';
+    card.appendChild(buildAvatar(ch));
+    const name = document.createElement('div');
+    name.className = 'char-name';
+    name.textContent = ch.name;
+    card.appendChild(name);
+    card.addEventListener('click', ()=>selectCharacter(ch.id));
+    charGrid.appendChild(card);
+  });
+}
+
+function renderCharChip(){
+  const ch = CHARACTERS.find(c=>c.id===currentCharacter);
+  charChip.innerHTML = '';
+  if(!ch) return;
+  charChip.appendChild(buildAvatar(ch));
+  charChip.appendChild(document.createTextNode(ch.name+' 님'));
+}
+
+async function selectCharacter(id){
+  currentCharacter = id;
+  try{ localStorage.setItem(LAST_CHAR_KEY, id); }catch(e){}
+  charOverlay.classList.add('hidden');
+  renderCharChip();
+  currentRecord = await loadCharacterRecord(id);
+  startGame();
+}
+
+charSwitchBtn.addEventListener('click', ()=>{
+  charOverlay.classList.remove('hidden');
+});
+
+// ---------- storage: localStorage now, optional cloud sync later ----------
+function loadLocalRecord(id){
   try{
-    const res = await window.storage.get('hexagarden-garden');
-    if(res && res.value) return JSON.parse(res.value);
+    const raw = localStorage.getItem(RECORD_KEY_PREFIX+id);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      return { best: parsed.best||{}, garden: parsed.garden||{} };
+    }
   }catch(e){}
-  const empty = {};
-  LEVEL_ORDER.forEach(k=>empty[k]=0);
-  return empty;
+  return { best:{}, garden:{} };
 }
-async function incrementGarden(lvl){
-  const g = await loadGarden();
-  g[lvl] = (g[lvl]||0)+1;
-  try{ await window.storage.set('hexagarden-garden', JSON.stringify(g)); }catch(e){}
-  return g;
+function saveLocalRecord(id, rec){
+  try{ localStorage.setItem(RECORD_KEY_PREFIX+id, JSON.stringify(rec)); }catch(e){}
 }
+
+// Optional Firebase cloud sync — fill FIREBASE_CONFIG later to enable
+// cross-device family ranking. Until then every function below is a
+// harmless no-op and everything runs on localStorage alone.
+const FIREBASE_CONFIG = {
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: ""
+};
+let db = null;
+if(FIREBASE_CONFIG.apiKey && window.firebase){
+  try{
+    firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+  }catch(e){ db = null; }
+}
+async function cloudFetchRecord(id){
+  if(!db) return null;
+  try{
+    const snap = await db.collection('hexagarden_characters').doc(id).get();
+    return snap.exists ? snap.data() : null;
+  }catch(e){ return null; }
+}
+function cloudSaveRecord(id, rec){
+  if(!db) return;
+  db.collection('hexagarden_characters').doc(id).set(rec, {merge:true}).catch(()=>{});
+}
+async function cloudFetchAll(){
+  if(!db) return null;
+  try{
+    const snap = await db.collection('hexagarden_characters').get();
+    const out = {};
+    snap.forEach(doc=>{ out[doc.id]=doc.data(); });
+    return out;
+  }catch(e){ return null; }
+}
+function mergeRecords(a,b){
+  const out = { best:{...(a&&a.best||{})}, garden:{...(a&&a.garden||{})} };
+  if(b){
+    LEVEL_ORDER.forEach(k=>{
+      if(b.best && b.best[k]!=null){
+        if(out.best[k]==null || b.best[k]<out.best[k]) out.best[k]=b.best[k];
+      }
+      if(b.garden && b.garden[k]!=null){
+        out.garden[k] = Math.max(out.garden[k]||0, b.garden[k]);
+      }
+    });
+  }
+  return out;
+}
+async function loadCharacterRecord(id){
+  const local = loadLocalRecord(id);
+  const cloud = await cloudFetchRecord(id);
+  const merged = mergeRecords(local, cloud);
+  saveLocalRecord(id, merged);
+  if(db) cloudSaveRecord(id, merged);
+  return merged;
+}
+function persistRecord(){
+  if(!currentCharacter) return;
+  saveLocalRecord(currentCharacter, currentRecord);
+  cloudSaveRecord(currentCharacter, currentRecord);
+}
+function recordBest(lvl, time){
+  if(currentRecord.best[lvl]==null || time<currentRecord.best[lvl]){
+    currentRecord.best[lvl] = time;
+    persistRecord();
+    return true;
+  }
+  return false;
+}
+function recordGardenIncrement(lvl){
+  currentRecord.garden[lvl] = (currentRecord.garden[lvl]||0)+1;
+  persistRecord();
+}
+
 function renderGardenPanel(counts){
   gardenPanel.innerHTML = '';
   LEVEL_ORDER.forEach(k=>{
@@ -695,14 +1081,142 @@ function renderGardenPanel(counts){
     gardenPanel.appendChild(row);
   });
 }
-gardenBtn.addEventListener('click', async ()=>{
+gardenBtn.addEventListener('click', ()=>{
   const open = gardenPanel.classList.toggle('open');
   gardenBtn.textContent = open ? '🌷 정원 닫기' : '🌷 나의 정원 보기';
-  if(open){
-    const counts = await loadGarden();
-    renderGardenPanel(counts);
-  }
+  if(open) renderGardenPanel(currentRecord.garden);
 });
+
+// ---------- ranking ----------
+let rankTab = 'lv1';
+function formatTime(sec){
+  if(sec>=60) return Math.floor(sec/60)+'분 '+(sec%60)+'초';
+  return sec+'초';
+}
+async function gatherAllRecords(){
+  const out = {};
+  CHARACTERS.forEach(ch=>{ out[ch.id] = loadLocalRecord(ch.id); });
+  if(currentCharacter) out[currentCharacter] = currentRecord;
+  const cloud = await cloudFetchAll();
+  if(cloud){
+    Object.keys(cloud).forEach(id=>{
+      out[id] = mergeRecords(out[id], cloud[id]);
+    });
+  }
+  return { records: out, cloudAvailable: !!cloud };
+}
+function buildRankRow(index, ch, valueText){
+  const row = document.createElement('div');
+  row.className = 'rank-row';
+  const pos = document.createElement('div');
+  pos.className = 'rank-pos';
+  pos.textContent = index===0?'🥇':index===1?'🥈':index===2?'🥉':String(index+1);
+  const name = document.createElement('div');
+  name.className = 'rank-name';
+  name.appendChild(buildAvatar(ch, 22));
+  name.appendChild(document.createTextNode(ch.name));
+  const val = document.createElement('div');
+  val.className = 'rank-time';
+  val.textContent = valueText;
+  row.appendChild(pos); row.appendChild(name); row.appendChild(val);
+  return row;
+}
+function renderRankingPanel(records, cloudAvailable){
+  rankingPanel.innerHTML = '';
+  const tabs = document.createElement('div');
+  tabs.className = 'rank-tabs';
+  const tabDefs = [...LEVEL_ORDER.map(k=>({id:k,label:LEVELS[k].label})), {id:'overall',label:'종합'}];
+  tabDefs.forEach(t=>{
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'rank-tab'+(rankTab===t.id?' active':'');
+    b.textContent = t.label;
+    b.addEventListener('click', ()=>{ rankTab=t.id; renderRankingPanel(records, cloudAvailable); });
+    tabs.appendChild(b);
+  });
+  rankingPanel.appendChild(tabs);
+
+  const list = document.createElement('div');
+  if(rankTab==='overall'){
+    const rows = CHARACTERS.map(ch=>{
+      const rec = records[ch.id]||{best:{}};
+      let cleared=0, total=0;
+      LEVEL_ORDER.forEach(k=>{ const t=rec.best[k]; if(t!=null){cleared++; total+=t;} });
+      return {ch, cleared, total};
+    }).filter(r=>r.cleared>0).sort((a,b)=> b.cleared-a.cleared || a.total-b.total);
+    if(rows.length===0){
+      list.innerHTML = '<div class="rank-empty">아직 아무도 클리어하지 않았어요</div>';
+    } else {
+      rows.forEach((r,i)=>list.appendChild(buildRankRow(i, r.ch, r.cleared+'/5 · '+formatTime(r.total))));
+    }
+  } else {
+    const rows = CHARACTERS.map(ch=>{
+      const rec = records[ch.id]||{best:{}};
+      return {ch, time:rec.best[rankTab]};
+    }).filter(r=>r.time!=null).sort((a,b)=>a.time-b.time);
+    if(rows.length===0){
+      list.innerHTML = '<div class="rank-empty">아직 이 난이도를 클리어한 사람이 없어요</div>';
+    } else {
+      rows.forEach((r,i)=>list.appendChild(buildRankRow(i, r.ch, formatTime(r.time))));
+    }
+  }
+  rankingPanel.appendChild(list);
+
+  if(!cloudAvailable){
+    const note = document.createElement('div');
+    note.className = 'rank-note';
+    note.textContent = '※ 지금은 이 기기에 저장된 기록만 보여요. 가족 전체 기록을 하나로 모으려면 클라우드 연동이 필요해요.';
+    rankingPanel.appendChild(note);
+  }
+}
+async function openRanking(){
+  rankingPanel.innerHTML = '<div class="rank-empty">불러오는 중...</div>';
+  const { records, cloudAvailable } = await gatherAllRecords();
+  renderRankingPanel(records, cloudAvailable);
+}
+rankingBtn.addEventListener('click', ()=>{
+  const open = rankingPanel.classList.toggle('open');
+  rankingBtn.textContent = open ? '🏆 랭킹 닫기' : '🏆 랭킹 보기';
+  if(open) openRanking();
+});
+
+// ---------- watercolor flower backgrounds ----------
+function makeFlowerSVG(petals, petalColor, centerColor, washColor1, washColor2, opacity){
+  let petalShapes = '';
+  for(let i=0;i<petals;i++){
+    const angle = (360/petals)*i;
+    petalShapes += '<ellipse cx="50" cy="28" rx="12" ry="19" fill="'+petalColor+'" transform="rotate('+angle+' 50 50)"/>';
+  }
+  const svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">'
+    + '<defs><radialGradient id="w" cx="35%" cy="30%" r="75%">'
+    + '<stop offset="0%" stop-color="'+washColor1+'" stop-opacity="0.9"/>'
+    + '<stop offset="60%" stop-color="'+washColor2+'" stop-opacity="0.45"/>'
+    + '<stop offset="100%" stop-color="'+washColor2+'" stop-opacity="0"/>'
+    + '</radialGradient></defs>'
+    + '<g opacity="'+opacity+'">'
+    + '<rect width="100" height="100" fill="url(#w)"/>'
+    + '<g opacity="0.75">'+petalShapes+'</g>'
+    + '<circle cx="50" cy="50" r="9" fill="'+centerColor+'"/>'
+    + '</g></svg>';
+  return 'data:image/svg+xml;utf8,'+encodeURIComponent(svg);
+}
+const FLOWER_PARAMS = {
+  lv1: { petals:8,  petal:'#D98BA0', center:'#B23A56', wash1:'#F3D3DC', wash2:'#EFC2D2' },
+  lv2: { petals:6,  petal:'#B79EF0', center:'#6B4FB0', wash1:'#E8DFFB', wash2:'#D3C2F5' },
+  lv3: { petals:12, petal:'#8E6BA0', center:'#4A3355', wash1:'#E4D5F0', wash2:'#C9AFDA' },
+  lv4: { petals:5,  petal:'#C23B4E', center:'#8E1F30', wash1:'#FBD9DE', wash2:'#F0AEB9' },
+  lv5: { petals:9,  petal:'#C9A227', center:'#96751A', wash1:'#FBEFC9', wash2:'#EAD98C' }
+};
+const FLOWER_BG = {}, FLOWER_BG_FAINT = {};
+LEVEL_ORDER.forEach(k=>{
+  const p = FLOWER_PARAMS[k];
+  FLOWER_BG[k] = makeFlowerSVG(p.petals,p.petal,p.center,p.wash1,p.wash2, 0.8);
+  FLOWER_BG_FAINT[k] = makeFlowerSVG(p.petals,p.petal,p.center,p.wash1,p.wash2, 0.22);
+});
+function applyFlowerBg(lvl){
+  document.body.style.setProperty('--flower-bg', 'url("'+FLOWER_BG[lvl]+'")');
+  document.body.style.setProperty('--flower-bg-faint', 'url("'+FLOWER_BG_FAINT[lvl]+'")');
+}
 
 function renderOptionRow(){
   const cfg = LEVELS[level];
@@ -727,8 +1241,14 @@ function renderOptionRow(){
   }
 }
 
+function updateBestDisplay(){
+  const t = currentRecord.best[level];
+  bestEl.textContent = t!=null ? ('최고 기록: ' + t + '초') : '';
+}
+
 function startGame(){
   const cfg = LEVELS[level];
+  applyFlowerBg(level);
   rows = cfg.rows; cols = cfg.cols; mineCount = cfg.mines;
   mineGrid=null; adjGrid=null;
   revealed = make2D(rows,cols,false);
@@ -741,11 +1261,11 @@ function startGame(){
   clearInterval(timerInterval);
   timerEl.textContent='0';
   mineCountEl.textContent = mineCount;
-  msgEl.textContent = '첫 칸을 눌러 화단을 열어보세요';
+  msgEl.textContent = '첫 칸을 두 번 눌러 화단을 열어보세요';
   potEl.className = 'pot';
   potEl.textContent = '🪴';
   renderOptionRow();
-  loadBest();
+  updateBestDisplay();
   updateHexMetrics();
   layoutBoard();
   renderEmptyBoard();
@@ -786,6 +1306,62 @@ function cellPixelPos(row,col){
   return {left,top};
 }
 
+// ---------- gesture handling: double-tap = reveal, long-press = flag toggle ----------
+const LONG_PRESS_MS = 480;
+const DOUBLE_TAP_MS = 350;
+const MOVE_CANCEL_PX = 10;
+let pressTimer = null;
+let pressActive = null;
+let pressMoved = false;
+let pressStartX = 0, pressStartY = 0;
+let longPressFired = false;
+let lastTapCell = null;
+let lastTapTime = 0;
+
+function attachCellHandlers(btn, r, c){
+  btn.addEventListener('pointerdown', (e)=>{
+    if(e.button !== undefined && e.button !== 0) return;
+    pressActive = {r,c};
+    pressMoved = false;
+    longPressFired = false;
+    pressStartX = e.clientX; pressStartY = e.clientY;
+    clearTimeout(pressTimer);
+    pressTimer = setTimeout(()=>{
+      if(pressActive && !pressMoved){
+        longPressFired = true;
+        handleFlag(r,c);
+        if(navigator.vibrate) navigator.vibrate(15);
+      }
+    }, LONG_PRESS_MS);
+  });
+  btn.addEventListener('pointermove', (e)=>{
+    if(!pressActive) return;
+    if(Math.abs(e.clientX-pressStartX)>MOVE_CANCEL_PX || Math.abs(e.clientY-pressStartY)>MOVE_CANCEL_PX){
+      pressMoved = true;
+      clearTimeout(pressTimer);
+    }
+  });
+  const endPress = ()=>{
+    clearTimeout(pressTimer);
+    if(!pressActive) return;
+    const wasLongPress = longPressFired;
+    const moved = pressMoved;
+    pressActive = null;
+    if(wasLongPress || moved) return;
+    const now = Date.now();
+    if(lastTapCell && lastTapCell.r===r && lastTapCell.c===c && (now-lastTapTime)<DOUBLE_TAP_MS){
+      lastTapCell = null;
+      handleCellClick(r,c);
+    } else {
+      lastTapCell = {r,c};
+      lastTapTime = now;
+    }
+  };
+  btn.addEventListener('pointerup', endPress);
+  btn.addEventListener('pointercancel', ()=>{ clearTimeout(pressTimer); pressActive=null; });
+  btn.addEventListener('contextmenu', (e)=>{ e.preventDefault(); handleFlag(r,c); });
+}
+
 function renderEmptyBoard(){
   boardEl.innerHTML='';
   for(let r=0;r<rows;r++){
@@ -801,8 +1377,7 @@ function renderEmptyBoard(){
       const fill = document.createElement('div');
       fill.className = 'cell-fill';
       btn.appendChild(fill);
-      btn.addEventListener('click', ()=>handleCellClick(r,c));
-      btn.addEventListener('contextmenu', (e)=>{ e.preventDefault(); handleFlag(r,c); });
+      attachCellHandlers(btn, r, c);
       boardEl.appendChild(btn);
     }
   }
@@ -873,7 +1448,6 @@ function handleCellClick(r,c){
     startTimer();
   }
 
-  if(flagPlacementMode){ handleFlag(r,c); return; }
   if(revealed[r][c]) return;
 
   if(mineGrid[r][c]){
@@ -886,7 +1460,6 @@ function handleCellClick(r,c){
     return;
   }
 
-  const before = countRevealed();
   const state = {rows,cols,mineGrid,adjGrid,revealed,flagged};
   floodReveal(r,c,state);
   renderBoard();
@@ -919,16 +1492,22 @@ function endGame(won){
   if(won){
     potEl.className='pot win';
     potEl.textContent = LEVELS[level].flower+'✨';
-    msgEl.textContent = '🎉 화단이 완성됐어요! 추측 없이 논리로 다 풀었어요!';
-    saveBest(seconds);
+    const isNew = recordBest(level, seconds);
+    bestEl.textContent = isNew ? ('🎉 새 기록! ' + seconds + '초') : ('최고 기록: ' + currentRecord.best[level] + '초');
     launchConfetti();
-    incrementGarden(level).then(counts=>{
-      if(gardenPanel.classList.contains('open')) renderGardenPanel(counts);
-    });
+    recordGardenIncrement(level);
+    if(gardenPanel.classList.contains('open')) renderGardenPanel(currentRecord.garden);
+    if(campaignMode){
+      campaignAdvance();
+    } else {
+      msgEl.textContent = '🎉 화단이 완성됐어요! 추측 없이 논리로 다 풀었어요!';
+    }
   } else {
     potEl.className='pot';
     potEl.textContent='🥀';
-    msgEl.textContent = '앗, 잡초였어요. 사실 힌트로 확정할 수 있는 칸이었어요 — 다시 살펴보며 도전해봐요!';
+    msgEl.textContent = campaignMode
+      ? '앗, 잡초였어요. ↻ 버튼으로 이 단계를 다시 시도하세요 (시간은 계속 흘러요!)'
+      : '앗, 잡초였어요. 사실 힌트로 확정할 수 있는 칸이었어요 — 다시 살펴보며 도전해봐요!';
   }
 }
 
@@ -952,7 +1531,15 @@ function launchConfetti(){
   }
 }
 
-startGame();
+// ---------- boot ----------
+renderCharGrid();
+let savedChar = null;
+try{ savedChar = localStorage.getItem(LAST_CHAR_KEY); }catch(e){}
+if(savedChar && CHARACTERS.some(c=>c.id===savedChar)){
+  selectCharacter(savedChar);
+} else {
+  charOverlay.classList.remove('hidden');
+}
 </script>
 </body>
 </html>
