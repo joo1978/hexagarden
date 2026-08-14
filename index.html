@@ -362,6 +362,8 @@
     clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
     cursor:pointer;
     user-select:none;
+    -webkit-user-select:none;
+    -webkit-user-drag:none;
     -webkit-touch-callout:none;
     touch-action:manipulation;
     transition: filter .1s ease;
@@ -618,6 +620,8 @@ let campaignSecondsLeft = 3600;
 let campaignInterval = null;
 
 const boardEl = document.getElementById('board');
+boardEl.addEventListener('selectstart', (e)=>{ e.preventDefault(); });
+boardEl.addEventListener('contextmenu', (e)=>{ e.preventDefault(); });
 const rowHintsEl = document.getElementById('rowHints');
 const mineCountEl = document.getElementById('mineCount');
 const timerEl = document.getElementById('timer');
