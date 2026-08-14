@@ -281,6 +281,37 @@
   }
   .mode-btn.active{ background:var(--tile); color:var(--ink); }
 
+  .zoom-row{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:10px;
+    margin-bottom:12px;
+  }
+  .zoom-btn{
+    width:34px; height:34px;
+    border-radius:10px;
+    border:2px solid var(--line);
+    background:var(--card);
+    color:var(--ink);
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size:18px;
+    line-height:1;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    touch-action:manipulation;
+  }
+  .zoom-btn:disabled{ opacity:0.35; cursor:default; }
+  .zoom-label{
+    min-width:52px;
+    text-align:center;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:13px;
+    color:var(--ink-soft);
+  }
+
   .campaign-timer{
     display:none;
     text-align:center;
@@ -578,6 +609,12 @@
     </div>
   </div>
 
+  <div class="zoom-row">
+    <button class="zoom-btn" id="zoomOut" aria-label="축소">−</button>
+    <div class="zoom-label" id="zoomLabel">100%</div>
+    <button class="zoom-btn" id="zoomIn" aria-label="확대">+</button>
+  </div>
+
   <div class="board-frame">
     <div class="board-inner">
       <div class="row-hints" id="rowHints"></div>
@@ -613,12 +650,22 @@ let HEX_W = Math.round(SIZE*Math.sqrt(3));
 let HEX_H = SIZE*2;
 let ROW_STEP = HEX_H*0.75;
 
+// ---------- board zoom (pure display scale — never touches game state) ----------
+const ZOOM_LEVELS = [1, 1.25, 1.5, 1.75];
+const ZOOM_KEY = 'hexagarden:zoom';
+let zoomLevel = 1;
+try{
+  const savedZoom = Number(localStorage.getItem(ZOOM_KEY));
+  if(ZOOM_LEVELS.includes(savedZoom)) zoomLevel = savedZoom;
+}catch(e){}
+
 function updateHexMetrics(){
   const frameWidth = document.querySelector('.board-frame').clientWidth || window.innerWidth;
   const availableForBoard = Math.max(180, frameWidth - 60); // minus padding + row-hint gutter
   const perColumn = availableForBoard / (cols + 0.5);
   let size = perColumn / Math.sqrt(3);
   size = Math.max(18, Math.min(38, size));
+  size = size * zoomLevel;
   SIZE = size;
   HEX_W = Math.round(SIZE*Math.sqrt(3));
   HEX_H = SIZE*2;
@@ -658,6 +705,9 @@ const potEl = document.getElementById('pot');
 const resetBtn = document.getElementById('resetBtn');
 const digModeBtn = document.getElementById('digMode');
 const flagModeBtn = document.getElementById('flagMode');
+const zoomOutBtn = document.getElementById('zoomOut');
+const zoomInBtn = document.getElementById('zoomIn');
+const zoomLabelEl = document.getElementById('zoomLabel');
 const optionRow = document.getElementById('optionRow');
 const gardenBtn = document.getElementById('gardenBtn');
 const gardenPanel = document.getElementById('gardenPanel');
@@ -791,6 +841,28 @@ flagModeBtn.addEventListener('click', ()=>{
   flagModeBtn.classList.add('active');
   digModeBtn.classList.remove('active');
 });
+
+function updateZoomUI(){
+  zoomLabelEl.textContent = Math.round(zoomLevel*100)+'%';
+  zoomOutBtn.disabled = zoomLevel<=ZOOM_LEVELS[0];
+  zoomInBtn.disabled = zoomLevel>=ZOOM_LEVELS[ZOOM_LEVELS.length-1];
+}
+function setZoom(newLevel){
+  if(!ZOOM_LEVELS.includes(newLevel)) return;
+  zoomLevel = newLevel;
+  try{ localStorage.setItem(ZOOM_KEY, String(zoomLevel)); }catch(e){}
+  updateZoomUI();
+  relayout();
+}
+zoomOutBtn.addEventListener('click', ()=>{
+  const i = ZOOM_LEVELS.indexOf(zoomLevel);
+  if(i>0) setZoom(ZOOM_LEVELS[i-1]);
+});
+zoomInBtn.addEventListener('click', ()=>{
+  const i = ZOOM_LEVELS.indexOf(zoomLevel);
+  if(i<ZOOM_LEVELS.length-1) setZoom(ZOOM_LEVELS[i+1]);
+});
+updateZoomUI();
 
 function make2D(r,c,val){
   const g=[];
@@ -1370,6 +1442,39 @@ function cellPixelPos(row,col){
   return {left,top};
 }
 
+// ---------- unified pointer input: 손가락/S Pen/마우스가 전부 이 한 경로로만 처리됨 ----------
+// click을 그대로 두고 pointerup을 얹으면 같은 입력이 두 번 처리될 수 있어 click은 아예 쓰지 않는다.
+const TAP_MOVE_TOLERANCE = 10; // px — 이 이상 움직이면 스크롤/드래그로 간주, 칸 조작 취소
+let tapPointerId = null;
+let tapStartX = 0, tapStartY = 0;
+let tapMoved = false;
+
+function attachCellHandlers(btn, r, c){
+  btn.addEventListener('pointerdown', (e)=>{
+    if(e.pointerType==='mouse' && e.button!==0) return; // 우클릭은 contextmenu가 처리
+    tapPointerId = e.pointerId;
+    tapStartX = e.clientX; tapStartY = e.clientY;
+    tapMoved = false;
+  });
+  btn.addEventListener('pointermove', (e)=>{
+    if(e.pointerId!==tapPointerId) return;
+    if(Math.abs(e.clientX-tapStartX)>TAP_MOVE_TOLERANCE || Math.abs(e.clientY-tapStartY)>TAP_MOVE_TOLERANCE){
+      tapMoved = true;
+    }
+  });
+  const endTap = (e)=>{
+    if(e.pointerId!==tapPointerId) return;
+    const wasTap = !tapMoved;
+    tapPointerId = null;
+    if(!wasTap) return; // 스크롤/드래그였으면 칸 조작하지 않음
+    e.preventDefault();
+    handleCellClick(r,c);
+  };
+  btn.addEventListener('pointerup', endTap);
+  btn.addEventListener('pointercancel', (e)=>{ if(e.pointerId===tapPointerId) tapPointerId=null; });
+  btn.addEventListener('contextmenu', (e)=>{ e.preventDefault(); handleFlag(r,c); });
+}
+
 function renderEmptyBoard(){
   boardEl.innerHTML='';
   for(let r=0;r<rows;r++){
@@ -1385,8 +1490,7 @@ function renderEmptyBoard(){
       const fill = document.createElement('div');
       fill.className = 'cell-fill';
       btn.appendChild(fill);
-      btn.addEventListener('click', ()=>handleCellClick(r,c));
-      btn.addEventListener('contextmenu', (e)=>{ e.preventDefault(); handleFlag(r,c); });
+      attachCellHandlers(btn, r, c);
       boardEl.appendChild(btn);
     }
   }
