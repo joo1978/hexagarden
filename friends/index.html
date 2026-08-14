@@ -559,7 +559,11 @@ let campaignInterval = null;
 
 const boardEl = document.getElementById('board');
 boardEl.addEventListener('selectstart', (e)=>{ e.preventDefault(); });
-boardEl.addEventListener('contextmenu', (e)=>{ e.preventDefault(); });
+boardEl.addEventListener('contextmenu', (e)=>{
+  e.preventDefault();
+  const cell = pixelToCell(e.clientX, e.clientY);
+  if(cell) handleFlag(cell.r, cell.c);
+});
 const rowHintsEl = document.getElementById('rowHints');
 const mineCountEl = document.getElementById('mineCount');
 const timerEl = document.getElementById('timer');
@@ -1080,38 +1084,65 @@ function cellPixelPos(row,col){
   return {left,top};
 }
 
-// ---------- unified pointer input: 손가락/S Pen/마우스가 전부 이 한 경로로만 처리됨 ----------
+// ---------- unified pointer input: 손가락/S Pen/정전식 펜/마우스가 전부 이 한 경로로만 처리됨 ----------
 // click을 그대로 두고 pointerup을 얹으면 같은 입력이 두 번 처리될 수 있어 click은 아예 쓰지 않는다.
+// 개별 버튼의 clip-path 히트테스트에 기대지 않고 좌표에서 "가장 가까운 헥스 칸"을 직접 계산해서 쓴다 —
+// 정전식 펜은 촉이 굵고 좌표가 흔들려서, 칸 경계(clip-path 바깥 여백)에 살짝만 걸쳐도 엉뚱한 칸이나
+// 빈 틈으로 판정되는 문제가 있었음.
 const TAP_MOVE_TOLERANCE = 10; // px — 이 이상 움직이면 스크롤/드래그로 간주, 칸 조작 취소
 let tapPointerId = null;
 let tapStartX = 0, tapStartY = 0;
 let tapMoved = false;
+let tapCell = null;
 
-function attachCellHandlers(btn, r, c){
-  btn.addEventListener('pointerdown', (e)=>{
-    if(e.pointerType==='mouse' && e.button!==0) return; // 우클릭은 contextmenu가 처리
-    tapPointerId = e.pointerId;
-    tapStartX = e.clientX; tapStartY = e.clientY;
-    tapMoved = false;
-  });
-  btn.addEventListener('pointermove', (e)=>{
-    if(e.pointerId!==tapPointerId) return;
-    if(Math.abs(e.clientX-tapStartX)>TAP_MOVE_TOLERANCE || Math.abs(e.clientY-tapStartY)>TAP_MOVE_TOLERANCE){
-      tapMoved = true;
+function pixelToCell(clientX, clientY){
+  const rect = boardEl.getBoundingClientRect();
+  const x = clientX - rect.left;
+  const y = clientY - rect.top;
+  const approxRow = Math.round(y / ROW_STEP);
+  let best = null, bestDist = Infinity;
+  for(let dr=-1; dr<=1; dr++){
+    const r = approxRow + dr;
+    if(r<0 || r>=rows) continue;
+    const approxCol = Math.round((x - (r%2 ? HEX_W/2 : 0)) / HEX_W);
+    for(let dc=-1; dc<=1; dc++){
+      const c = approxCol + dc;
+      if(c<0 || c>=cols) continue;
+      const {left,top} = cellPixelPos(r,c);
+      const cx = left + HEX_W/2, cy = top + HEX_H/2;
+      const dist = (x-cx)*(x-cx) + (y-cy)*(y-cy);
+      if(dist < bestDist){ bestDist = dist; best = {r,c}; }
     }
-  });
-  const endTap = (e)=>{
-    if(e.pointerId!==tapPointerId) return;
-    const wasTap = !tapMoved;
-    tapPointerId = null;
-    if(!wasTap) return; // 스크롤/드래그였으면 칸 조작하지 않음
-    e.preventDefault();
-    handleCellClick(r,c);
-  };
-  btn.addEventListener('pointerup', endTap);
-  btn.addEventListener('pointercancel', (e)=>{ if(e.pointerId===tapPointerId) tapPointerId=null; });
-  btn.addEventListener('contextmenu', (e)=>{ e.preventDefault(); handleFlag(r,c); });
+  }
+  return best;
 }
+
+boardEl.addEventListener('pointerdown', (e)=>{
+  if(e.pointerType==='mouse' && e.button!==0) return; // 우클릭은 contextmenu가 처리
+  const cell = pixelToCell(e.clientX, e.clientY);
+  if(!cell) return;
+  tapPointerId = e.pointerId;
+  tapStartX = e.clientX; tapStartY = e.clientY;
+  tapMoved = false;
+  tapCell = cell;
+});
+boardEl.addEventListener('pointermove', (e)=>{
+  if(e.pointerId!==tapPointerId) return;
+  if(Math.abs(e.clientX-tapStartX)>TAP_MOVE_TOLERANCE || Math.abs(e.clientY-tapStartY)>TAP_MOVE_TOLERANCE){
+    tapMoved = true;
+  }
+});
+const endTap = (e)=>{
+  if(e.pointerId!==tapPointerId) return;
+  const wasTap = !tapMoved;
+  const cell = tapCell;
+  tapPointerId = null; tapCell = null;
+  if(!wasTap || !cell) return; // 스크롤/드래그였으면 칸 조작하지 않음
+  e.preventDefault();
+  handleCellClick(cell.r, cell.c);
+};
+boardEl.addEventListener('pointerup', endTap);
+boardEl.addEventListener('pointercancel', (e)=>{ if(e.pointerId===tapPointerId){ tapPointerId=null; tapCell=null; } });
 
 function renderEmptyBoard(){
   boardEl.innerHTML='';
@@ -1128,7 +1159,6 @@ function renderEmptyBoard(){
       const fill = document.createElement('div');
       fill.className = 'cell-fill';
       btn.appendChild(fill);
-      attachCellHandlers(btn, r, c);
       boardEl.appendChild(btn);
     }
   }
