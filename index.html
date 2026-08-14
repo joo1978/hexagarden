@@ -259,6 +259,27 @@
     font-weight:700;
     margin-bottom:12px;
   }
+  .mode-row{ display:flex; justify-content:center; margin-bottom:12px; }
+  .mode-toggle{
+    display:flex;
+    background:var(--card);
+    border:2px solid var(--line);
+    border-radius:14px;
+    padding:4px;
+    gap:4px;
+  }
+  .mode-btn{
+    padding:8px 20px;
+    border-radius:10px;
+    border:none;
+    background:transparent;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size:13px;
+    color:var(--ink-soft);
+    cursor:pointer;
+  }
+  .mode-btn.active{ background:var(--tile); color:var(--ink); }
 
   .campaign-timer{
     display:none;
@@ -550,7 +571,12 @@
 
   <div class="option-row" id="optionRow"></div>
 
-  <div class="gesture-hint">두 번 톡톡 눌러 심기 · 꾹 눌러서 표시 (다시 꾹 누르면 표시 취소) · PC는 우클릭도 가능</div>
+  <div class="mode-row">
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="digMode">🌱 심기</button>
+      <button class="mode-btn" id="flagMode">🚩 표시</button>
+    </div>
+  </div>
 
   <div class="board-frame">
     <div class="board-inner">
@@ -559,7 +585,7 @@
     </div>
   </div>
 
-  <div class="msg" id="msg">난이도를 고르고 첫 칸을 두 번 눌러보세요</div>
+  <div class="msg" id="msg">난이도를 고르고 첫 칸을 눌러보세요</div>
   <div class="best" id="best"></div>
 
   <div class="bottom-btns">
@@ -613,6 +639,7 @@ let firstClick = true;
 let timerInterval = null;
 let seconds = 0;
 let showRowHints = false;
+let flagPlacementMode = false;
 
 let campaignMode = false;
 let campaignIndex = 0;
@@ -629,6 +656,8 @@ const msgEl = document.getElementById('msg');
 const bestEl = document.getElementById('best');
 const potEl = document.getElementById('pot');
 const resetBtn = document.getElementById('resetBtn');
+const digModeBtn = document.getElementById('digMode');
+const flagModeBtn = document.getElementById('flagMode');
 const optionRow = document.getElementById('optionRow');
 const gardenBtn = document.getElementById('gardenBtn');
 const gardenPanel = document.getElementById('gardenPanel');
@@ -746,6 +775,17 @@ ctCancelBtn.addEventListener('click', ()=>{
 resetBtn.addEventListener('click', ()=>{
   if(campaignMode && campaignSecondsLeft<=0) return;
   startGame();
+});
+
+digModeBtn.addEventListener('click', ()=>{
+  flagPlacementMode = false;
+  digModeBtn.classList.add('active');
+  flagModeBtn.classList.remove('active');
+});
+flagModeBtn.addEventListener('click', ()=>{
+  flagPlacementMode = true;
+  flagModeBtn.classList.add('active');
+  digModeBtn.classList.remove('active');
 });
 
 function make2D(r,c,val){
@@ -1267,7 +1307,7 @@ function startGame(){
   clearInterval(timerInterval);
   timerEl.textContent='0';
   mineCountEl.textContent = mineCount;
-  msgEl.textContent = '첫 칸을 두 번 눌러 화단을 열어보세요';
+  msgEl.textContent = '첫 칸을 눌러 화단을 열어보세요';
   potEl.className = 'pot';
   potEl.textContent = '🪴';
   renderOptionRow();
@@ -1312,62 +1352,6 @@ function cellPixelPos(row,col){
   return {left,top};
 }
 
-// ---------- gesture handling: double-tap = reveal, long-press = flag toggle ----------
-const LONG_PRESS_MS = 480;
-const DOUBLE_TAP_MS = 350;
-const MOVE_CANCEL_PX = 10;
-let pressTimer = null;
-let pressActive = null;
-let pressMoved = false;
-let pressStartX = 0, pressStartY = 0;
-let longPressFired = false;
-let lastTapCell = null;
-let lastTapTime = 0;
-
-function attachCellHandlers(btn, r, c){
-  btn.addEventListener('pointerdown', (e)=>{
-    if(e.button !== undefined && e.button !== 0) return;
-    pressActive = {r,c};
-    pressMoved = false;
-    longPressFired = false;
-    pressStartX = e.clientX; pressStartY = e.clientY;
-    clearTimeout(pressTimer);
-    pressTimer = setTimeout(()=>{
-      if(pressActive && !pressMoved){
-        longPressFired = true;
-        handleFlag(r,c);
-        if(navigator.vibrate) navigator.vibrate(15);
-      }
-    }, LONG_PRESS_MS);
-  });
-  btn.addEventListener('pointermove', (e)=>{
-    if(!pressActive) return;
-    if(Math.abs(e.clientX-pressStartX)>MOVE_CANCEL_PX || Math.abs(e.clientY-pressStartY)>MOVE_CANCEL_PX){
-      pressMoved = true;
-      clearTimeout(pressTimer);
-    }
-  });
-  const endPress = ()=>{
-    clearTimeout(pressTimer);
-    if(!pressActive) return;
-    const wasLongPress = longPressFired;
-    const moved = pressMoved;
-    pressActive = null;
-    if(wasLongPress || moved) return;
-    const now = Date.now();
-    if(lastTapCell && lastTapCell.r===r && lastTapCell.c===c && (now-lastTapTime)<DOUBLE_TAP_MS){
-      lastTapCell = null;
-      handleCellClick(r,c);
-    } else {
-      lastTapCell = {r,c};
-      lastTapTime = now;
-    }
-  };
-  btn.addEventListener('pointerup', endPress);
-  btn.addEventListener('pointercancel', ()=>{ clearTimeout(pressTimer); pressActive=null; });
-  btn.addEventListener('contextmenu', (e)=>{ e.preventDefault(); handleFlag(r,c); });
-}
-
 function renderEmptyBoard(){
   boardEl.innerHTML='';
   for(let r=0;r<rows;r++){
@@ -1383,7 +1367,8 @@ function renderEmptyBoard(){
       const fill = document.createElement('div');
       fill.className = 'cell-fill';
       btn.appendChild(fill);
-      attachCellHandlers(btn, r, c);
+      btn.addEventListener('click', ()=>handleCellClick(r,c));
+      btn.addEventListener('contextmenu', (e)=>{ e.preventDefault(); handleFlag(r,c); });
       boardEl.appendChild(btn);
     }
   }
@@ -1436,7 +1421,6 @@ function renderBoard(){
 
 function handleCellClick(r,c){
   if(gameOver||gameWon) return;
-  if(flagged[r][c]) return;
 
   if(firstClick){
     const gen = generateWithRetry(rows,cols,mineCount,r,c);
@@ -1454,6 +1438,9 @@ function handleCellClick(r,c){
     startTimer();
   }
 
+  if(flagPlacementMode){ handleFlag(r,c); return; }
+
+  if(flagged[r][c]) return;
   if(revealed[r][c]) return;
 
   if(mineGrid[r][c]){
